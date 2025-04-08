@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { pool } from "./config/db";
+
 
 dotenv.config();
 
@@ -13,6 +15,12 @@ app.use(express.json());
 app.get("/", (_req, res) => {
   res.send("PortafoliUS Backend 🩻");
 });
+
+
+pool.query('SELECT NOW()')
+  .then(res => console.log('✅ DB conectada:', res.rows[0]))
+  .catch(err => console.error('❌ Error de conexión DB:', err))
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
