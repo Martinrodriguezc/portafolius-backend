@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "mi_clave_secreta_super_segura";
+import { config } from "../config";
+import logger from "../config/logger";
 
 export interface AuthenticatedRequest extends Request {
   user?: any;
@@ -14,17 +14,22 @@ export const authenticateToken = (
 ) => {
   const authHeader = req.headers["authorization"];
 
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (!token) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    logger.warn("Token de autorización no proporcionado o mal formado");
     return res
       .status(401)
-      .json({ msg: "No autorizado, token no proporcionado" });
+      .json({ msg: "No autorizado, token no proporcionado o mal formado" });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({ msg: "Token inválido o expirado" });
+  const token = authHeader.split(" ")[1];
+
+  jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      logger.error("Error de verificación del token", { error: err });
+      return res.status(403).json({ msg: "Token inválido o expirado" });
+    }
     req.user = decoded;
+    logger.info("Token verificado correctamente", { user: decoded });
     next();
   });
 };

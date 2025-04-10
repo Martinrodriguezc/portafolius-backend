@@ -1,11 +1,9 @@
-import dotenv from "dotenv";
 import { Pool } from "pg";
+import { config } from './index';
 
-dotenv.config();
+const isProduction = config.NODE_ENV === "production";
 
-const isProduction = process.env.NODE_ENV === "production";
-
-const config: any = {
+const DbConfig: any = {
   connectionString: process.env.DATABASE_URL,
   max: 20,
   idleTimeoutMillis: 30000,
@@ -13,9 +11,9 @@ const config: any = {
 };
 
 if (isProduction) {
-  config.ssl = { rejectUnauthorized: false };
+  DbConfig.ssl = { rejectUnauthorized: false };
 }
 
-export const pool = new Pool(config);
+export const pool = new Pool(DbConfig);
 
 
