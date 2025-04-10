@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { pool } from "./config/db";
-
+import userRouter from './routes/authRoutes'
 
 dotenv.config();
 
@@ -15,6 +15,8 @@ app.use(express.json());
 app.get("/", (_req, res) => {
   res.send("PortafoliUS Backend 🩻");
 });
+
+app.use('/users', userRouter)
 
 
 pool.query('SELECT NOW()')
