@@ -1,8 +1,19 @@
-import { Pool } from 'pg'
+import { Pool } from "pg";
+import { config } from './index';
 
-export const pool = new Pool({
+const isProduction = config.NODE_ENV === "production";
+
+const DbConfig: any = {
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false // necesario para RDS con SSL sin certs personalizados
-  }
-})
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+};
+
+if (isProduction) {
+  DbConfig.ssl = { rejectUnauthorized: false };
+}
+
+export const pool = new Pool(DbConfig);
+
+

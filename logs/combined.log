@@ -1,0 +1,8 @@
+2025-04-10 12:08:48 [INFO] Server running on port 4000 
+2025-04-10 12:08:48 [INFO] DB conectada: {
+  "now": "2025-04-10T16:08:48.458Z"
+}
+2025-04-10 12:08:57 [INFO] Usuario registrado correctamente: martin2@example.com 
+2025-04-10 12:09:07 [WARN] No se encontró usuario para email: martin6@example.com 
+2025-04-10 12:09:13 [WARN] Contraseña incorrecta para email: martin@example.com 
+2025-04-10 12:09:18 [INFO] Inicio de sesión exitoso para email: martin2@example.com 
