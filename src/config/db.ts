@@ -7,15 +7,18 @@ if (!config.DATABASE_URL) {
   throw new Error('DATABASE_URL no está configurada');
 }
 
-const DbConfig = {
-  connectionString: config.DATABASE_URL,
-  ...(isProduction && {
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-    ssl: { rejectUnauthorized: false }
-  })
-};
+// Configuración básica para desarrollo, extendida para producción
+const DbConfig = isProduction 
+  ? {
+      connectionString: config.DATABASE_URL,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+      ssl: { rejectUnauthorized: false }
+    }
+  : {
+      connectionString: config.DATABASE_URL
+    };
 
 export const pool = new Pool(DbConfig);
 
