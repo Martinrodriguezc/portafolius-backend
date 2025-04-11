@@ -7,9 +7,12 @@ import { pool } from "./config/db";
 import userRouter from "./routes/authRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
+import { Request, Response } from 'express';
+
+dotenv.config();
 
 const app = express();
-const PORT = config.PORT;
+const port = config.PORT || 3000;
 const NODE_ENV = config.NODE_ENV;
 
 if (NODE_ENV === "production") {
@@ -24,7 +27,7 @@ if (NODE_ENV === "production") {
   app.use(limiter);
 
   // Configurar CORS con orígenes permitidos
-  const allowedOrigins = config.ALLOWED_ORIGINS;
+  const allowedOrigins = config.ALLOWED_ORIGINS?.split(',') || [];
 
   app.use(
     cors({
@@ -38,13 +41,38 @@ if (NODE_ENV === "production") {
 
 app.use(express.json());
 
+// Ruta de prueba para verificar la conexión a la base de datos
+app.get('/health', async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({
+      status: 'ok',
+      timestamp: result.rows[0].now
+    });
+  } catch (error) {
+    logger.error('Error en health check:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Error al conectar con la base de datos'
+    });
+  }
+});
+
 app.use("/users", userRouter);
 
-pool
-  .query("SELECT NOW()")
-  .then((dbRes) => logger.info("DB conectada:", dbRes.rows[0]))
-  .catch((err) => logger.error("Error de conexión DB:", err));
+// Inicialización del servidor
+const startServer = async () => {
+  try {
+    await pool.query('SELECT NOW()');
+    logger.info('Conexión a PostgreSQL establecida');
+    
+    app.listen(port, () => {
+      logger.info(`Servidor corriendo en el puerto ${port}`);
+    });
+  } catch (error) {
+    logger.error('Error al conectar con PostgreSQL:', error);
+    process.exit(1);
+  }
+};
 
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+startServer();
