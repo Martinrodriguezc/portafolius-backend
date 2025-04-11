@@ -3,8 +3,12 @@ import { config } from './index';
 
 const isProduction = config.NODE_ENV === "production";
 
+if (!config.DATABASE_URL) {
+  throw new Error('DATABASE_URL no está configurada');
+}
+
 const DbConfig = {
-  connectionString: config.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/tudb',
+  connectionString: config.DATABASE_URL,
   ...(isProduction && {
     max: 20,
     idleTimeoutMillis: 30000,
@@ -14,6 +18,11 @@ const DbConfig = {
 };
 
 export const pool = new Pool(DbConfig);
+
+// Agregar listener para errores de conexión
+pool.on('error', (err) => {
+  console.error('Error inesperado del pool de PostgreSQL', err);
+});
 
 // Eliminaremos la configuración de MongoDB ya que usaremos PostgreSQL
 
