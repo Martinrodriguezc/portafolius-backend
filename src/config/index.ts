@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 if (!process.env.JWT_SECRET) {
-    throw new Error('La variable de entorno JWT_SECRET no está definida. Por favor, configúrala para continuar.');
-  }
+  throw new Error('La variable de entorno JWT_SECRET no está definida. Por favor, configúrala para continuar.');
+}
 
 export const config = {
   NODE_ENV: process.env.NODE_ENV || 'development',
