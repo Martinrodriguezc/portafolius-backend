@@ -12,7 +12,7 @@ import { Request, Response } from 'express';
 dotenv.config();
 
 const app = express();
-const port = config.PORT || 3000;
+const PORT = config.PORT || 3000;
 const NODE_ENV = config.NODE_ENV;
 
 if (NODE_ENV === "production") {
@@ -27,7 +27,7 @@ if (NODE_ENV === "production") {
   app.use(limiter);
 
   // Configurar CORS con orígenes permitidos
-  const allowedOrigins = config.ALLOWED_ORIGINS?.split(',') || [];
+  const allowedOrigins = config.ALLOWED_ORIGINS || [];
 
   app.use(
     cors({
@@ -66,8 +66,8 @@ const startServer = async () => {
     await pool.query('SELECT NOW()');
     logger.info('Conexión a PostgreSQL establecida');
     
-    app.listen(port, () => {
-      logger.info(`Servidor corriendo en el puerto ${port}`);
+    app.listen(PORT, () => {
+      logger.info(`Servidor corriendo en el puerto ${PORT}`);
     });
   } catch (error) {
     logger.error('Error al conectar con PostgreSQL:', error);
