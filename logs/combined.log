@@ -6,3 +6,32 @@
 2025-04-10 12:09:07 [WARN] No se encontró usuario para email: martin6@example.com 
 2025-04-10 12:09:13 [WARN] Contraseña incorrecta para email: martin@example.com 
 2025-04-10 12:09:18 [INFO] Inicio de sesión exitoso para email: martin2@example.com 
+2025-04-14 12:12:23 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:12:23 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:13:01 [INFO] Generada URL para subir video: example_video.mp4 
+2025-04-14 12:25:58 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:25:58 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:26:01 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:26:01 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:26:06 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:26:06 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:26:20 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:26:20 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:27:04 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:27:04 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:27:05 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:27:05 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:27:06 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:27:06 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:27:08 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:27:08 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:27:18 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:27:18 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:27:21 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:27:21 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:27:24 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:27:24 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:27:27 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:27:27 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-14 12:27:34 [INFO] Conexión a PostgreSQL establecida 
+2025-04-14 12:27:34 [INFO] Servidor corriendo en el puerto 4000 
