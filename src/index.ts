@@ -4,11 +4,11 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { pool } from "./config/db";
-import authRouter from "./routes/authRoutes";
-import userRouter from "./routes/userRoutes";
+import userRouter from "./routes/authRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
 import { Request, Response } from 'express';
+import { initializeDatabase } from "./db/initDb";
 
 dotenv.config();
 
@@ -59,20 +59,17 @@ app.get('/health', async (req: Request, res: Response) => {
   }
 });
 
-app.use("/auth", authRouter);
 app.use("/users", userRouter);
 
 // Inicialización del servidor
 const startServer = async () => {
   try {
-    await pool.query('SELECT NOW()');
-    logger.info('Conexión a PostgreSQL establecida');
-    
+    await initializeDatabase();
     app.listen(PORT, () => {
       logger.info(`Servidor corriendo en el puerto ${PORT}`);
     });
   } catch (error) {
-    logger.error('Error al conectar con PostgreSQL:', error);
+    logger.error('Error al iniciar el servidor:', error);
     process.exit(1);
   }
 };
