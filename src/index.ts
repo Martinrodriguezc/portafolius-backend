@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { pool } from "./config/db";
-import userRouter from "./routes/authRoutes";
+import authRouter from "./routes/authRoutes";
+import userRouter from "./routes/userRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
 import { Request, Response } from 'express';
@@ -58,6 +59,7 @@ app.get('/health', async (req: Request, res: Response) => {
   }
 });
 
+app.use("/auth", authRouter);
 app.use("/users", userRouter);
 
 // Inicialización del servidor
