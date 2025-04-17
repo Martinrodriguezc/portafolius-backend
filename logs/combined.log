@@ -1,8 +1,83 @@
-2025-04-10 12:08:48 [INFO] Server running on port 4000 
-2025-04-10 12:08:48 [INFO] DB conectada: {
-  "now": "2025-04-10T16:08:48.458Z"
+2025-04-17 09:55:57 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 09:55:57 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 09:56:28 [ERROR] Error al registrar el usuario {
+  "error": {
+    "length": 322,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23514",
+    "detail": "Failing row contains (7, dddddd@s.s, $2b$10$kyUGRK7QorsTz6iWxFPnY.ixag0kGbEsPwldP3oZIM.bqyOiUHQ1G, ddd, dddd, Profesor, 2025-04-17 09:56:28.694634-04).",
+    "schema": "public",
+    "table": "users",
+    "constraint": "users_role_check",
+    "file": "execMain.c",
+    "line": "1939",
+    "routine": "ExecConstraints"
+  }
 }
-2025-04-10 12:08:57 [INFO] Usuario registrado correctamente: martin2@example.com 
-2025-04-10 12:09:07 [WARN] No se encontró usuario para email: martin6@example.com 
-2025-04-10 12:09:13 [WARN] Contraseña incorrecta para email: martin@example.com 
-2025-04-10 12:09:18 [INFO] Inicio de sesión exitoso para email: martin2@example.com 
+2025-04-17 09:56:36 [WARN] Rol incorrecto: profesor 
+2025-04-17 09:56:49 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 09:56:49 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 09:56:50 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 09:56:50 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 09:56:51 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 09:56:51 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 09:56:54 [INFO] Usuario registrado correctamente: dddddd@s.s 
+2025-04-17 09:57:38 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 09:57:38 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 09:57:40 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 09:57:40 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 09:58:18 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 09:58:18 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 09:58:29 [INFO] Lista de usuarios recuperada exitosamente 
+2025-04-17 09:58:48 [INFO] Usuario eliminado exitosamente: 8 
+2025-04-17 09:58:53 [INFO] Lista de usuarios recuperada exitosamente 
+2025-04-17 09:59:06 [INFO] Usuario recuperado exitosamente: 6 
+2025-04-17 10:00:01 [ERROR] Error al actualizar usuario con ID: 6 {
+  "error": {
+    "length": 333,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23502",
+    "detail": "Failing row contains (6, tomas.rodriguez1@uc.cl, $2b$10$0JaY8nTE11jTZf3HH7eDiuA8nXQU/PsbTbpWMnOivHfvQq5iRiLfa, pepito, null, null, 2025-04-16 21:34:57.54933-04).",
+    "schema": "public",
+    "table": "users",
+    "column": "last_name",
+    "file": "execMain.c",
+    "line": "1889",
+    "routine": "ExecConstraints"
+  }
+}
+2025-04-17 10:01:01 [ERROR] Error al actualizar usuario con ID: 6 {
+  "error": {
+    "length": 333,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23502",
+    "detail": "Failing row contains (6, tomas.rodriguez1@uc.cl, $2b$10$0JaY8nTE11jTZf3HH7eDiuA8nXQU/PsbTbpWMnOivHfvQq5iRiLfa, null, null, null, 2025-04-16 21:34:57.54933-04).",
+    "schema": "public",
+    "table": "users",
+    "column": "first_name",
+    "file": "execMain.c",
+    "line": "1889",
+    "routine": "ExecConstraints"
+  }
+}
+2025-04-17 10:02:29 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 10:02:29 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 10:04:06 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 10:04:06 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 10:06:31 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 10:06:31 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 10:06:47 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 10:06:47 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 10:06:48 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 10:06:48 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 10:06:50 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 10:06:50 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 10:07:01 [INFO] Lista de usuarios recuperada exitosamente 
+2025-04-17 10:15:30 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 10:15:30 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 10:15:48 [INFO] Conexión a PostgreSQL establecida 
+2025-04-17 10:15:48 [INFO] Servidor corriendo en el puerto 3000 
+2025-04-17 10:15:51 [INFO] Usuario actualizado exitosamente: 6 
