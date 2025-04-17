@@ -7,15 +7,15 @@ import logger from "../config/logger";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   const { firstName, lastName, email, role, password } = req.body;
-
+  
   if (!firstName || !lastName || !email || !role || !password) {
     logger.warn("No se proporcionaron todos los campos requeridos en el registro");
     res.status(400).json({ msg: "Debe proporcionar todos los campos" });
     return;
   }
 
-  if (role !== "Estudiante" && role !== "Profesor") {
-    logger.warn(`Rol incorrecto: ${role}`);
+  if (role !== "estudiante" && role !== "profesor") {
+    logger.warn(`Rol incorrecto: profesor, ${role} `);
     res.status(400).json({ msg: "Rol incorrecto" });
     return;
   }
@@ -32,8 +32,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      "INSERT INTO Users (first_name, last_name, email, role, password) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [firstName, lastName, email, role, hashedPassword]
+      "INSERT INTO Users (email, password, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [email, hashedPassword, firstName, lastName, role.toLowerCase()]
     );
 
     logger.info(`Usuario registrado correctamente: ${email}`);

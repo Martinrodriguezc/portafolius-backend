@@ -1,0 +1,45 @@
+2025-04-16 18:11:31 [ERROR] Error al registrar el usuario {
+  "error": {
+    "length": 313,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23514",
+    "detail": "Failing row contains (1, d@s.s, $2b$10$KDQjEUAuVLzuH7mGIvgzUOvu1bOYxtjUD/iFMHVnnHZom/bzKhl5K, dd, d, Profesor, 2025-04-16 18:11:30.634777-04).",
+    "schema": "public",
+    "table": "users",
+    "constraint": "users_role_check",
+    "file": "execMain.c",
+    "line": "1939",
+    "routine": "ExecConstraints"
+  }
+}
+2025-04-16 18:16:15 [ERROR] Error al registrar el usuario {
+  "error": {
+    "length": 313,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23514",
+    "detail": "Failing row contains (2, d@s.s, $2b$10$gBZQIGA3WBjn11sIpFJuTeNYM1N4Wj51MZC97DLIG1CtdsgRKuMpK, dd, d, Profesor, 2025-04-16 18:16:15.045415-04).",
+    "schema": "public",
+    "table": "users",
+    "constraint": "users_role_check",
+    "file": "execMain.c",
+    "line": "1939",
+    "routine": "ExecConstraints"
+  }
+}
+2025-04-16 21:11:34 [ERROR] Error al registrar el usuario {
+  "error": {
+    "length": 313,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23514",
+    "detail": "Failing row contains (3, d@s.s, $2b$10$xsVlkQf5814NU2zYKtdBHuRYkCx652c7WEXTlTq5H8tQ6LNJ2DGsu, dd, d, Profesor, 2025-04-16 21:11:34.546584-04).",
+    "schema": "public",
+    "table": "users",
+    "constraint": "users_role_check",
+    "file": "execMain.c",
+    "line": "1939",
+    "routine": "ExecConstraints"
+  }
+}
