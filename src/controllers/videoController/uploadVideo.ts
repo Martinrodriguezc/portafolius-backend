@@ -12,8 +12,7 @@ export const generateUploadUrl = async (
   const userId = 1;
 
   //Revisar para que se pueda dejar cada user en 1 carpeta, probablemente haya que codificar en el front y luego decodificar en la descarga en el backend
-  const key = `users_${userId}_${fileName}`
-  //const key = `users/${userId}/${Date.now()}_${fileName}`;
+  const key = `users/${userId}/${Date.now()}_${fileName}`;
 
   const command = new PutObjectCommand({
     Bucket: "portafolius-videos",
