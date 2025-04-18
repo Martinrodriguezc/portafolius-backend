@@ -5,7 +5,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { pool } from "./config/db";
 import authRouter from "./routes/authRoutes";
-import userRouter from "./routes/authRoutes";
+import userRouter from "./routes/userRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
 import { Request, Response } from 'express';
