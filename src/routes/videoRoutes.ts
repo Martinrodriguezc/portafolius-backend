@@ -5,6 +5,6 @@ import { generateDownloadUrl } from "../controllers/videoController/getVideo";
 const router = Router();
 
 router.post("/generate_upload_url", generateUploadUrl);
-router.get("/generate_download_url/:key", generateDownloadUrl);
+router.get("/generate_download_url/:clipId", generateDownloadUrl);
 
 export default router;

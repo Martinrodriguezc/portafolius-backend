@@ -94,3 +94,73 @@
 2025-04-18 11:12:03 [INFO] Generada URL para subir video: example_video.mov 
 2025-04-18 11:12:41 [INFO] Generada URL para subir video: example_video.mov 
 2025-04-18 11:21:25 [INFO] Generada URL para subir video: example_video.mov 
+2025-04-18 13:37:18 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:37:18 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:37:51 [ERROR] Error al generar la URL prefirmada {
+  "error": {
+    "length": 336,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23502",
+    "detail": "Failing row contains (1, null, users/1/1744997871003_example_video.mov, example_video.mov, video/quicktime, null, null, 2025-04-18 13:37:51.04848-04, 1, f).",
+    "schema": "public",
+    "table": "video_clip",
+    "column": "study_id",
+    "file": "execMain.c",
+    "line": "1893",
+    "routine": "ExecConstraints"
+  }
+}
+2025-04-18 13:39:39 [ERROR] Error al generar la URL prefirmada {
+  "error": {
+    "length": 265,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23503",
+    "detail": "Key (study_id)=(1) is not present in table \"study\".",
+    "schema": "public",
+    "table": "video_clip",
+    "constraint": "video_clip_study_id_fkey",
+    "file": "ri_triggers.c",
+    "line": "2539",
+    "routine": "ri_ReportViolation"
+  }
+}
+2025-04-18 13:42:10 [INFO] Generada URL para subir video: example_video.mov 
+2025-04-18 13:48:30 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:48:30 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:49:08 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:49:08 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:49:14 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:49:14 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:49:21 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:49:21 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:50:21 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:50:21 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:50:45 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:50:45 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:51:00 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:51:00 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:51:17 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:51:17 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:52:06 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:52:06 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:54:24 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:54:24 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:54:58 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:54:58 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:56:21 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:56:21 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:57:06 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:57:06 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 13:57:27 [INFO] Generada URL para subir video: example_video.mov 
+2025-04-18 13:58:23 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 13:58:23 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 14:01:43 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 14:01:43 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 14:01:45 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 14:01:45 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 14:01:47 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 14:01:47 [INFO] Servidor corriendo en el puerto 4000 
+2025-04-18 14:01:50 [INFO] Conexión a PostgreSQL establecida 
+2025-04-18 14:01:50 [INFO] Servidor corriendo en el puerto 4000 

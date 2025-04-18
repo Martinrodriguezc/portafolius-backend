@@ -1,0 +1,30 @@
+2025-04-18 13:37:51 [ERROR] Error al generar la URL prefirmada {
+  "error": {
+    "length": 336,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23502",
+    "detail": "Failing row contains (1, null, users/1/1744997871003_example_video.mov, example_video.mov, video/quicktime, null, null, 2025-04-18 13:37:51.04848-04, 1, f).",
+    "schema": "public",
+    "table": "video_clip",
+    "column": "study_id",
+    "file": "execMain.c",
+    "line": "1893",
+    "routine": "ExecConstraints"
+  }
+}
+2025-04-18 13:39:39 [ERROR] Error al generar la URL prefirmada {
+  "error": {
+    "length": 265,
+    "name": "error",
+    "severity": "ERROR",
+    "code": "23503",
+    "detail": "Key (study_id)=(1) is not present in table \"study\".",
+    "schema": "public",
+    "table": "video_clip",
+    "constraint": "video_clip_study_id_fkey",
+    "file": "ri_triggers.c",
+    "line": "2539",
+    "routine": "ri_ReportViolation"
+  }
+}
