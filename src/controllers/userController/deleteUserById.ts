@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import { pool } from "../../config/db";
 import logger from "../../config/logger";
 
-export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+export const deleteUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { id } = req.params;
 
   try {
@@ -23,4 +26,4 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
     logger.error(`Error al eliminar usuario con ID: ${id}`, { error });
     res.status(500).json({ msg: "Error al eliminar usuario" });
   }
-}; 
+};

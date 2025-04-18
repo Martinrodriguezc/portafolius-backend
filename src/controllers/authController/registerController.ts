@@ -7,7 +7,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   const { firstName, lastName, email, role, password } = req.body;
 
   if (!firstName || !lastName || !email || !role || !password) {
-    logger.warn("No se proporcionaron todos los campos requeridos en el registro");
+    logger.warn(
+      "No se proporcionaron todos los campos requeridos en el registro"
+    );
     res.status(400).json({ msg: "Debe proporcionar todos los campos" });
     return;
   }
@@ -19,7 +21,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    const userExists = await pool.query("SELECT * FROM Users WHERE email=$1", [email]);
+    const userExists = await pool.query("SELECT * FROM Users WHERE email=$1", [
+      email,
+    ]);
 
     if (userExists.rows[0]) {
       logger.warn(`El usuario ya existe: ${email}`);
@@ -43,4 +47,4 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     logger.error("Error al registrar el usuario", { error });
     res.status(500).json({ msg: "Error al registrar el usuario" });
   }
-}; 
+};
