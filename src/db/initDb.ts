@@ -111,4 +111,4 @@ export const initializeDatabase = async (): Promise<void> => {
     logger.error("Error al inicializar la base de datos", { error });
     throw error;
   }
-};
+}; 
