@@ -1,15 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { pool } from "../config/db";
-import { config } from "../config";
-import logger from "../config/logger";
+import { pool } from "../../config/db";
+import { config } from "../../config";
+import logger from "../../config/logger";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   const { firstName, lastName, email, role, password } = req.body;
-  
+
   if (!firstName || !lastName || !email || !role || !password) {
-    logger.warn("No se proporcionaron todos los campos requeridos en el registro");
+    logger.warn(
+      "No se proporcionaron todos los campos requeridos en el registro"
+    );
     res.status(400).json({ msg: "Debe proporcionar todos los campos" });
     return;
   }
@@ -21,7 +23,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    const userExists = await pool.query("SELECT * FROM Users WHERE email=$1", [email]);
+    const userExists = await pool.query("SELECT * FROM Users WHERE email=$1", [
+      email,
+    ]);
 
     if (userExists.rows[0]) {
       logger.warn(`El usuario ya existe: ${email}`);
@@ -61,7 +65,9 @@ export const login = async (
   }
 
   try {
-    const result = await pool.query("SELECT * FROM Users WHERE email = $1", [email]);
+    const result = await pool.query("SELECT * FROM Users WHERE email = $1", [
+      email,
+    ]);
 
     if (result.rows.length === 0) {
       logger.warn(`No se encontró usuario para email: ${email}`);
