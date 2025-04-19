@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { generateUploadUrl } from "../controllers/videoController/uploadVideo";
-import { generateDownloadUrl } from "../controllers/videoController/getVideo";
+import { generateDownloadUrl } from "../controllers/videoController/downloadVideo";
 
 const router = Router();
 
