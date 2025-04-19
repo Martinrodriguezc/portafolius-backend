@@ -64,12 +64,11 @@ app.get("/health", async (req: Request, res: Response) => {
 
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
-<<<<<<< HEAD
+
 app.use("/evaluations", evaluationRouter);
-=======
 app.use("/video", uploadRouter);
 app.use("/study", studyRouter);
->>>>>>> origin/develop
+
 
 const startServer = async () => {
   try {
