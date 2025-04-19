@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { pool } from "./config/db";
+import uploadRouter from "./routes/videoRoutes";
+import studyRouter from "./routes/studyRoutes";
 import authRouter from "./routes/authRoutes";
 import userRouter from "./routes/userRoutes";
 import { config } from "./config";
@@ -18,7 +20,7 @@ const PORT = config.PORT || 3000;
 const NODE_ENV = config.NODE_ENV;
 
 if (NODE_ENV === "production") {
-  //Seguridad de cabeceras HTTP
+  //Seguridad de headers en HTTP
   app.use(helmet());
 
   const limiter = rateLimit({
@@ -28,7 +30,6 @@ if (NODE_ENV === "production") {
   });
   app.use(limiter);
 
-  // Configurar CORS con orígenes permitidos
   const allowedOrigins = config.ALLOWED_ORIGINS || [];
 
   app.use(
@@ -44,26 +45,27 @@ if (NODE_ENV === "production") {
 app.use(express.json());
 
 // Ruta de prueba para verificar la conexión a la base de datos
-app.get('/health', async (req: Request, res: Response) => {
+app.get("/health", async (req: Request, res: Response) => {
   try {
-    const result = await pool.query('SELECT NOW()');
+    const result = await pool.query("SELECT NOW()");
     res.json({
-      status: 'ok',
-      timestamp: result.rows[0].now
+      status: "ok",
+      timestamp: result.rows[0].now,
     });
   } catch (error) {
-    logger.error('Error en health check:', error);
+    logger.error("Error en health check:", error);
     res.status(500).json({
-      status: 'error',
-      message: 'Error al conectar con la base de datos'
+      status: "error",
+      message: "Error al conectar con la base de datos",
     });
   }
 });
 
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
+app.use("/video", uploadRouter);
+app.use("/study", studyRouter);
 
-// Inicialización del servidor
 const startServer = async () => {
   try {
     await initializeDatabase();
