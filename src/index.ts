@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 import { pool } from "./config/db";
 import authRouter from "./routes/authRoutes";
 import userRouter from "./routes/userRoutes";
+import evaluationRouter from "./routes/evaluationRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
 import { Request, Response } from 'express';
@@ -62,6 +63,7 @@ app.get('/health', async (req: Request, res: Response) => {
 
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
+app.use("/evaluations", evaluationRouter);
 
 // Inicialización del servidor
 const startServer = async () => {
