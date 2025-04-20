@@ -10,7 +10,7 @@ export const generateUploadUrl = async (
   res: Response
 ): Promise<void> => {
   const { fileName, contentType, studyId } = req.body;
-  const userId = "1";
+  const userId = 1;
 
   const key = `users/${userId}/${Date.now()}_${fileName}`;
 
