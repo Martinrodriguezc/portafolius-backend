@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import jwt from 'jsonwebtoken';
 import { pool } from './db';
-import { config } from './index';  // lee tu JWT_SECRET  
+import { config } from './index'; 
 import logger from './logger';
 
 passport.use(new GoogleStrategy(
@@ -25,7 +25,7 @@ passport.use(new GoogleStrategy(
                 const insert = await pool.query(
                     `INSERT INTO Users (first_name, last_name, email, role, password)
            VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-                    [first_name, last_name, email, 'estudiante', hashed]
+                    [first_name, last_name, email, 'google_login', hashed]
                 );
                 user = insert.rows[0];
                 logger.info('Usuario OAuth creado:', email);

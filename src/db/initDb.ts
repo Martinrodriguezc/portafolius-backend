@@ -11,7 +11,7 @@ export const initializeDatabase = async (): Promise<void> => {
         password VARCHAR(255) NOT NULL,
         first_name VARCHAR(100) NOT NULL,
         last_name VARCHAR(100) NOT NULL,
-        role VARCHAR(15) NOT NULL CHECK (role IN ('profesor', 'estudiante', 'admin')),
+        role VARCHAR(15) NOT NULL CHECK (role IN ('google_login', 'profesor', 'estudiante', 'admin')),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
