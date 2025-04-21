@@ -8,6 +8,7 @@ import uploadRouter from "./routes/videoRoutes";
 import studyRouter from "./routes/studyRoutes";
 import authRouter from "./routes/authRoutes";
 import userRouter from "./routes/userRoutes";
+import teacherRouter from "./routes/teacherRoutes";
 import evaluationRouter from "./routes/evaluationRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
@@ -68,6 +69,7 @@ app.use("/users", userRouter);
 app.use("/evaluations", evaluationRouter);
 app.use("/video", uploadRouter);
 app.use("/study", studyRouter);
+app.use("/teacher", teacherRouter)
 
 const startServer = async () => {
   try {
