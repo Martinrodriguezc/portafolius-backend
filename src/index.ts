@@ -11,7 +11,7 @@ import userRouter from "./routes/userRoutes";
 import evaluationRouter from "./routes/evaluationRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import { initializeDatabase } from "./db/initDb";
 
 dotenv.config();
@@ -69,7 +69,6 @@ app.use("/evaluations", evaluationRouter);
 app.use("/video", uploadRouter);
 app.use("/study", studyRouter);
 
-
 const startServer = async () => {
   try {
     await initializeDatabase();
@@ -77,7 +76,7 @@ const startServer = async () => {
       logger.info(`Servidor corriendo en el puerto ${PORT}`);
     });
   } catch (error) {
-    logger.error('Error al iniciar el servidor:', error);
+    logger.error("Error al iniciar el servidor:", error);
     process.exit(1);
   }
 };

@@ -33,11 +33,15 @@ export const initializeDatabase = async (): Promise<void> => {
       CREATE TABLE IF NOT EXISTS video_clip (
         id SERIAL PRIMARY KEY,
         study_id INTEGER NOT NULL REFERENCES study(id),
-        file_path VARCHAR(255) NOT NULL,
+        object_key TEXT NOT NULL,
+        original_filename TEXT NOT NULL,
+        mime_type TEXT NOT NULL,
+        size_bytes BIGINT        NOT NULL,
         duration_seconds INTEGER,
-        upload_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        upload_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         order_index INTEGER NOT NULL,
-        deleted_by_teacher BOOLEAN DEFAULT FALSE
+        deleted_by_teacher BOOLEAN NOT NULL DEFAULT FALSE,
+        status VARCHAR(50) NOT NULL DEFAULT 'pendiente'
       );
     `);
 
@@ -111,4 +115,4 @@ export const initializeDatabase = async (): Promise<void> => {
     logger.error("Error al inicializar la base de datos", { error });
     throw error;
   }
-}; 
+};
