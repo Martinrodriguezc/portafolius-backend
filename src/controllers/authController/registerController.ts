@@ -4,12 +4,12 @@ import { pool } from "../../config/db";
 import logger from "../../config/logger";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
-  const { firstName, lastName, email, role, password } = req.body;
+  const firstName = req.body.firstName ?? req.body.first_name;
+  const lastName  = req.body.lastName  ?? req.body.last_name;
+  const { email, role, password } = req.body;
 
   if (!firstName || !lastName || !email || !role || !password) {
-    logger.warn(
-      "No se proporcionaron todos los campos requeridos en el registro"
-    );
+    logger.warn("No se proporcionaron todos los campos requeridos en el registro");
     res.status(400).json({ msg: "Debe proporcionar todos los campos" });
     return;
   }
@@ -21,11 +21,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    const userExists = await pool.query("SELECT * FROM Users WHERE email=$1", [
-      email,
-    ]);
+    const userExists = await pool.query(
+      "SELECT 1 FROM users WHERE email = $1",
+      [email]
+    );
 
-    if (userExists.rows[0]) {
+    if (userExists.rows.length > 0) {
       logger.warn(`El usuario ya existe: ${email}`);
       res.status(400).json({ msg: "El usuario ya existe" });
       return;
@@ -34,7 +35,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      "INSERT INTO Users (first_name, last_name, email, role, password) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      `INSERT INTO users
+          (first_name, last_name, email, role, password)
+       VALUES
+          ($1,          $2,        $3,    $4,   $5)
+       RETURNING id, email, first_name, last_name, role, created_at`,
       [firstName, lastName, email, role, hashedPassword]
     );
 
