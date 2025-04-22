@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createEvaluation, getEvaluations } from "../controllers/evaluationController";
+import { createEvaluation, getEvaluations, updateEvaluation } from "../controllers/evaluationController";
 import { authenticateToken } from "../middleware/authenticateToken";
 
 const router = Router();
@@ -14,6 +14,12 @@ router.post(
   "/:studyId",
   (req, res, next) => { authenticateToken(req, res, next); },
   createEvaluation
+);
+
+router.put(
+  "/:id",
+  (req, res, next) => { authenticateToken(req, res, next); },
+  updateEvaluation
 );
 
 export default router;
