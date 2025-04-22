@@ -13,15 +13,16 @@ export const getRecentComments = async (
          cc.comment_text   AS text,
          CONCAT(u.first_name, ' ', u.last_name) AS author,
          TO_CHAR(cc.timestamp, 'DD "de" FMMonth, YYYY') AS date,
+         vc.study_id       AS "studyId",
          cc.clip_id        AS "videoId"
        FROM clip_comment cc
        JOIN video_clip vc   ON vc.id = cc.clip_id
        JOIN study s         ON s.id = vc.study_id
        JOIN users u         ON u.id = cc.user_id
        WHERE s.student_id = $1
-         AND cc.user_id   != $1    -- solo comentarios de otros (profesores)
+         AND cc.user_id   != $1
        ORDER BY cc.timestamp DESC
-       LIMIT 5`,
+       LIMIT 50`,
       [userId]
     );
     res.json({ comments: result.rows });
