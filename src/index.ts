@@ -14,6 +14,7 @@ import { config } from "./config";
 import logger from "./config/logger";
 import { Request, Response } from 'express';
 import { initializeDatabase } from "./db/initDb";
+import teacherRouter from "./routes/teacherRoutes";
 
 dotenv.config();
 
@@ -70,6 +71,8 @@ app.use("/users", userRouter);
 app.use("/evaluations", evaluationRouter);
 app.use("/video", uploadRouter);
 app.use("/study", studyRouter);
+
+app.use("/teacher", teacherRouter);
 
 
 const startServer = async () => {
