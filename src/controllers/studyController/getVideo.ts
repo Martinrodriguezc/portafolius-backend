@@ -1,3 +1,4 @@
+// src/controllers/studyController/getVideo.ts
 import { Request, Response } from 'express';
 import { pool } from '../../config/db';
 
@@ -9,18 +10,17 @@ export const getVideosByStudyId = async (
 
   try {
     const result = await pool.query(
-      `SELECT id,
-              study_id,
-              object_key,
-              original_filename,
-              mime_type,
-              size_bytes,
-              duration_seconds,
-              upload_date,
-              order_index
-         FROM video_clip
-        WHERE study_id = $1
-        ORDER BY order_index`,
+      `SELECT
+         id,
+         study_id,
+         file_path,
+         duration_seconds,
+         upload_date,
+         order_index,
+         deleted_by_teacher
+       FROM video_clip
+       WHERE study_id = $1
+       ORDER BY order_index`,
       [studyId]
     );
 
