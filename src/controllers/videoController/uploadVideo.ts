@@ -9,8 +9,7 @@ export const generateUploadUrl = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { fileName, contentType, studyId, sizeBytes } = req.body;
-  const userId = 100;
+  const { fileName, contentType, studyId, sizeBytes, userId } = req.body;
 
   const key = `users/${userId}/${Date.now()}_${fileName}`;
 
@@ -34,7 +33,6 @@ export const generateUploadUrl = async (
        RETURNING id`,
       [studyId, key, fileName, contentType, sizeBytes]
     );
-    console.log("wena")
 
     const clipId = insertResult.rows[0].id;
     logger.info(`Generada URL para subir video: ${fileName}`);
