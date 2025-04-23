@@ -9,8 +9,7 @@ export const generateUploadUrl = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { fileName, contentType, studyId } = req.body;
-  const userId = 1;
+  const { fileName, contentType, studyId, sizeBytes, userId } = req.body;
 
   const key = `users/${userId}/${Date.now()}_${fileName}`;
 
@@ -27,12 +26,12 @@ export const generateUploadUrl = async (
       id: number;
     }>(
       `INSERT INTO video_clip
-         (study_id, object_key, original_filename, mime_type, duration_seconds, order_index)
-       VALUES ($1, $2, $3, $4, NULL, (
+         (study_id, object_key, original_filename, mime_type, duration_seconds, size_bytes, order_index)
+       VALUES ($1, $2, $3, $4, NULL, $5, (
          SELECT COALESCE(MAX(order_index),0)+1 FROM video_clip WHERE study_id = $1
        ))
        RETURNING id`,
-      [studyId, key, fileName, contentType]
+      [studyId, key, fileName, contentType, sizeBytes]
     );
 
     const clipId = insertResult.rows[0].id;
