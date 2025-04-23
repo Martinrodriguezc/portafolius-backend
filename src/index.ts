@@ -1,4 +1,5 @@
 import express from "express";
+import passport from './config/passport';
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
@@ -14,6 +15,8 @@ import { config } from "./config";
 import logger from "./config/logger";
 import { Request, Response } from "express";
 import { initializeDatabase } from "./db/initDb";
+import teacherRouter from "./routes/teacherRoutes";
+import materialRoutes from "./routes/materialRoutes";
 
 dotenv.config();
 
@@ -22,7 +25,6 @@ const PORT = config.PORT || 3000;
 const NODE_ENV = config.NODE_ENV;
 
 if (NODE_ENV === "production") {
-  //Seguridad de headers en HTTP
   app.use(helmet());
 
   const limiter = rateLimit({
@@ -45,6 +47,8 @@ if (NODE_ENV === "production") {
 }
 
 app.use(express.json());
+app.use(passport.initialize());
+
 
 // Ruta de prueba para verificar la conexión a la base de datos
 app.get("/health", async (req: Request, res: Response) => {
@@ -69,7 +73,9 @@ app.use("/users", userRouter);
 app.use("/evaluations", evaluationRouter);
 app.use("/video", uploadRouter);
 app.use("/study", studyRouter);
-app.use("/teacher", teacherRouter)
+app.use("/teacher", teacherRouter);
+app.use("/materials", materialRoutes);
+
 
 const startServer = async () => {
   try {
