@@ -105,6 +105,25 @@ export const initializeDatabase = async (): Promise<void> => {
         PRIMARY KEY (clip_id, tag_id)
       );
     `);
+    // ← añade justo antes del logger.info final
+// Crear tabla de materiales de estudio
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS material (
+    id           SERIAL PRIMARY KEY,
+    student_id   INTEGER REFERENCES users(id),   -- NULL = material global
+    type         VARCHAR(12) NOT NULL CHECK (type IN ('document','video','link')),
+    title        VARCHAR(255) NOT NULL,
+    description  TEXT,
+    url          VARCHAR(600) NOT NULL,
+    size_bytes   INTEGER,
+    mime_type    VARCHAR(120),
+    uploaded_at  TIMESTAMPTZ DEFAULT NOW()
+  );
+`);
+await pool.query(`
+  CREATE INDEX IF NOT EXISTS idx_material_student
+  ON material (student_id, type);
+`);
 
     logger.info("Base de datos inicializada correctamente");
   } catch (error) {
