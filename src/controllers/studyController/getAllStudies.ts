@@ -18,7 +18,14 @@ export const getAllStudiesWithEvaluationStatus = async (
         u.email,
         EXISTS (
           SELECT 1 FROM evaluation_form ef WHERE ef.study_id = s.id
-        ) AS has_evaluation
+        ) AS has_evaluation,
+        (
+          SELECT ef.score 
+          FROM evaluation_form ef 
+          WHERE ef.study_id = s.id 
+          ORDER BY ef.submitted_at DESC 
+          LIMIT 1
+        ) AS score
       FROM study s
       JOIN users u ON u.id = s.student_id
       ORDER BY s.created_at DESC;

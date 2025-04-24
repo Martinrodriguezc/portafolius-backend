@@ -13,19 +13,27 @@ export const getEvaluations = async (
     const result = await pool.query(
       `
       SELECT 
-        id,
-        study_id,
-        teacher_id,
-        submitted_at,
-        score,
-        feedback_summary
-      FROM evaluation_form
-      WHERE teacher_id = $1
-      ORDER BY submitted_at DESC
+        ef.id,
+        ef.study_id,
+        ef.teacher_id,
+        ef.submitted_at,
+        ef.score,
+        ef.feedback_summary,
+        s.title,
+        s.protocol,
+        s.created_at,
+        u.first_name,
+        u.last_name
+      FROM evaluation_form ef
+      JOIN study s ON ef.study_id = s.id
+      JOIN users u ON s.student_id = u.id
+      WHERE ef.teacher_id = $1
+      ORDER BY ef.submitted_at DESC
       `,
       [teacherId]
     );
 
+    console.log("Evaluaciones devueltas:", result.rows);
     res.json({ evaluations: result.rows });
   } catch (error) {
     logger.error("Error al obtener evaluaciones", { error });
