@@ -4,6 +4,7 @@ import { generateDownloadUrl } from "../controllers/videoController/downloadVide
 import { getVideoMetadata } from "../controllers/videoController/getVideoMetadata";
 import { getAllTags } from "../controllers/videoController/getTags";
 
+
 const router = Router();
 
 router.post("/generate_upload_url", generateUploadUrl);

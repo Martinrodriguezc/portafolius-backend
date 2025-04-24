@@ -34,11 +34,15 @@ export const initializeDatabase = async (): Promise<void> => {
       CREATE TABLE IF NOT EXISTS video_clip (
         id SERIAL PRIMARY KEY,
         study_id INTEGER NOT NULL REFERENCES study(id),
-        file_path VARCHAR(255) NOT NULL,
+        object_key TEXT NOT NULL,
+        original_filename TEXT NOT NULL,
+        mime_type TEXT NOT NULL,
+        size_bytes BIGINT        NOT NULL,
         duration_seconds INTEGER,
-        upload_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        upload_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         order_index INTEGER NOT NULL,
-        deleted_by_teacher BOOLEAN DEFAULT FALSE
+        deleted_by_teacher BOOLEAN NOT NULL DEFAULT FALSE,
+        status VARCHAR(50) NOT NULL DEFAULT 'pendiente'
       );
     `);
 
@@ -134,10 +138,28 @@ export const initializeDatabase = async (): Promise<void> => {
         PRIMARY KEY (clip_id, tag_id)
       );
     `);
-    logger.info("Base de datos inicializada");  
-    await seedTagHierarchy();
+
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS material (
+    id           SERIAL PRIMARY KEY,
+    student_id   INTEGER REFERENCES users(id),   -- NULL = material global
+    type         VARCHAR(12) NOT NULL CHECK (type IN ('document','video','link')),
+    title        VARCHAR(255) NOT NULL,
+    description  TEXT,
+    url          VARCHAR(600) NOT NULL,
+    size_bytes   INTEGER,
+    mime_type    VARCHAR(120),
+    uploaded_at  TIMESTAMPTZ DEFAULT NOW()
+  );
+`);
+await pool.query(`
+  CREATE INDEX IF NOT EXISTS idx_material_student
+  ON material (student_id, type);
+`);
+
+    logger.info("Base de datos inicializada correctamente");
   } catch (error) {
     logger.error("Error al inicializar la base de datos", { error });
     throw error;
   }
-}; 
+};
