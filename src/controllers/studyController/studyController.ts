@@ -5,7 +5,12 @@ export const getStudentStudies = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { userId } = req.params;
+  const rawId = req.params.userId;
+  const studentId = Number(rawId);
+  if (isNaN(studentId)) {
+    res.status(400).json({ msg: "ID de estudiante inválido" });
+    return;
+  }
 
   try {
     const result = await pool.query(
@@ -34,6 +39,8 @@ export const getStudentStudies = async (
     res.json({ studies: result.rows });
   } catch (error) {
     console.error("Error al obtener estudios del usuario:", error);
-    res.status(500).json({ msg: "Error al obtener estudios" });
+    res
+      .status(500)
+      .json({ msg: "Error al obtener estudios del usuario" });
   }
 };

@@ -25,6 +25,13 @@ router.put(
 
 router.get("/by-study/:studyId", getEvaluationByStudy);
 
+
+router.get(
+  "/",
+  (req, res, next) => { authenticateToken(req, res, next); },
+  listEvaluationsByStudent
+);
+
+
+
 export default router;
-
-
