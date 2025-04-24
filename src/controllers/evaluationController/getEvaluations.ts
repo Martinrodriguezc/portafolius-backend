@@ -22,11 +22,13 @@ export const getEvaluations = async (
         s.title,
         s.protocol,
         s.created_at,
-        u.first_name,
-        u.last_name
+        stu.first_name AS student_first_name,
+        stu.last_name AS student_last_name,
+        tea.first_name || ' ' || tea.last_name AS teacher_name
       FROM evaluation_form ef
       JOIN study s ON ef.study_id = s.id
-      JOIN users u ON s.student_id = u.id
+      JOIN users stu ON s.student_id = stu.id
+      JOIN users tea ON ef.teacher_id = tea.id
       WHERE ef.teacher_id = $1
       ORDER BY ef.submitted_at DESC
       `,

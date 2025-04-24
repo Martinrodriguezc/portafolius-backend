@@ -9,10 +9,25 @@ export const getStudentStudies = async (
 
   try {
     const result = await pool.query(
-      `SELECT id, title, protocol, status, created_at
-       FROM study
-       WHERE student_id = $1
-       ORDER BY created_at DESC`,
+      `SELECT 
+        s.id,
+        s.title,
+        s.protocol,
+        s.status,
+        s.created_at,
+        EXISTS (
+          SELECT 1 FROM evaluation_form ef WHERE ef.study_id = s.id
+        ) AS has_evaluation,
+        (
+          SELECT ef.score 
+          FROM evaluation_form ef 
+          WHERE ef.study_id = s.id 
+          ORDER BY ef.submitted_at DESC 
+          LIMIT 1
+        ) AS score
+      FROM study s
+      WHERE s.student_id = $1
+      ORDER BY s.created_at DESC`,
       [userId]
     );
 
