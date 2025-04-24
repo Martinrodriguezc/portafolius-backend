@@ -1,5 +1,6 @@
 import { pool } from "../config/db";
 import logger from "../config/logger";
+import { seedTagHierarchy } from "../seeds/tagSeed";
 
 export const initializeDatabase = async (): Promise<void> => {
   try {
@@ -11,7 +12,7 @@ export const initializeDatabase = async (): Promise<void> => {
         password VARCHAR(255) NOT NULL,
         first_name VARCHAR(100) NOT NULL,
         last_name VARCHAR(100) NOT NULL,
-        role VARCHAR(15) NOT NULL CHECK (role IN ('profesor', 'estudiante', 'admin')),
+        role VARCHAR(15) NOT NULL CHECK (role IN ('google_login', 'profesor', 'estudiante', 'admin')),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -33,11 +34,15 @@ export const initializeDatabase = async (): Promise<void> => {
       CREATE TABLE IF NOT EXISTS video_clip (
         id SERIAL PRIMARY KEY,
         study_id INTEGER NOT NULL REFERENCES study(id),
-        file_path VARCHAR(255) NOT NULL,
+        object_key TEXT NOT NULL,
+        original_filename TEXT NOT NULL,
+        mime_type TEXT NOT NULL,
+        size_bytes BIGINT        NOT NULL,
         duration_seconds INTEGER,
-        upload_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        upload_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         order_index INTEGER NOT NULL,
-        deleted_by_teacher BOOLEAN DEFAULT FALSE
+        deleted_by_teacher BOOLEAN NOT NULL DEFAULT FALSE,
+        status VARCHAR(50) NOT NULL DEFAULT 'pendiente'
       );
     `);
 
@@ -51,13 +56,41 @@ export const initializeDatabase = async (): Promise<void> => {
         sent_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    // Tabla de órganos
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS organ (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) UNIQUE NOT NULL
+      );
+    `);
+
+    // Tabla de estructuras (zonas del órgano)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS structure (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        organ_id INTEGER NOT NULL REFERENCES organ(id),
+        UNIQUE(name, organ_id)
+      );
+    `);
+
+    // Tabla de condiciones médicas asociadas a estructuras
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS condition (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        structure_id INTEGER NOT NULL REFERENCES structure(id),
+        UNIQUE(name, structure_id)
+      );
+    `);
 
     // Crear tabla de etiquetas
     await pool.query(`
       CREATE TABLE IF NOT EXISTS tag (
         id SERIAL PRIMARY KEY,
-        name VARCHAR(100) UNIQUE NOT NULL,
-        created_by INTEGER REFERENCES users(id)
+        name VARCHAR(250) UNIQUE NOT NULL,
+        created_by INTEGER REFERENCES users(id),
+        condition_id INTEGER REFERENCES condition(id)
       );
     `);
 
@@ -106,9 +139,27 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS material (
+    id           SERIAL PRIMARY KEY,
+    student_id   INTEGER REFERENCES users(id),   -- NULL = material global
+    type         VARCHAR(12) NOT NULL CHECK (type IN ('document','video','link')),
+    title        VARCHAR(255) NOT NULL,
+    description  TEXT,
+    url          VARCHAR(600) NOT NULL,
+    size_bytes   INTEGER,
+    mime_type    VARCHAR(120),
+    uploaded_at  TIMESTAMPTZ DEFAULT NOW()
+  );
+`);
+await pool.query(`
+  CREATE INDEX IF NOT EXISTS idx_material_student
+  ON material (student_id, type);
+`);
+
     logger.info("Base de datos inicializada correctamente");
   } catch (error) {
     logger.error("Error al inicializar la base de datos", { error });
     throw error;
   }
-}; 
+};

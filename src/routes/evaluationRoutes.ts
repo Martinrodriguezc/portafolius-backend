@@ -1,18 +1,34 @@
 import { Router } from "express";
 import {
   createEvaluation,
+  getEvaluations,
+  updateEvaluation
+} from "../controllers/evaluationController";
+import {
   saveDiagnosis,
   getDiagnosedVideos
 } from "../controllers/evaluationController/createEvaluation";
-
 import { authenticateToken } from "../middleware/authenticateToken";
+import { getEvaluationByStudy } from "../controllers/evaluationController/getEvaluationByStudy";
 
 const router = Router();
+
+router.get(
+  "/",
+  (req, res, next) => { authenticateToken(req, res, next); },
+  getEvaluations
+);
 
 router.post(
   "/:studyId",
   (req, res, next) => { authenticateToken(req, res, next); },
   createEvaluation
+);
+
+router.get(
+  "/diagnosis",
+  (req, res, next) => { authenticateToken(req, res, next); },
+  getDiagnosedVideos
 );
 
 router.post(
@@ -22,9 +38,10 @@ router.post(
 );
 
 router.get(
-  "/diagnosis",
+  "/by-study/:studyId",
   (req, res, next) => { authenticateToken(req, res, next); },
-  getDiagnosedVideos
+  getEvaluationByStudy
 );
 
 export default router;
+
