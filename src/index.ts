@@ -9,7 +9,6 @@ import uploadRouter from "./routes/videoRoutes";
 import studyRouter from "./routes/studyRoutes";
 import authRouter from "./routes/authRoutes";
 import userRouter from "./routes/userRoutes";
-import teacherRouter from "./routes/teacherRoutes";
 import evaluationRouter from "./routes/evaluationRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
