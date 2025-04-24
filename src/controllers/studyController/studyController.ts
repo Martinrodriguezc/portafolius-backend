@@ -33,7 +33,7 @@ export const getStudentStudies = async (
       FROM study s
       WHERE s.student_id = $1
       ORDER BY s.created_at DESC`,
-      [userId]
+      [studentId]
     );
 
     res.json({ studies: result.rows });
