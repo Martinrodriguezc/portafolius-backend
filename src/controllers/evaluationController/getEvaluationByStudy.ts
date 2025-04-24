@@ -12,8 +12,11 @@ export const getEvaluationByStudy = async (req: Request, res: Response): Promise
         ef.study_id,
         ef.score,
         ef.feedback_summary,
-        ef.submitted_at
+        ef.submitted_at,
+        u.first_name AS teacher_first_name,
+        u.last_name AS teacher_last_name
       FROM evaluation_form ef
+      JOIN users u ON u.id = ef.teacher_id
       WHERE ef.study_id = $1
       ORDER BY ef.submitted_at DESC
       LIMIT 1
