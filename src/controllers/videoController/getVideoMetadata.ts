@@ -9,18 +9,24 @@ export const getVideoMetadata = async (
 
   try {
     const result = await pool.query(
-      `SELECT id,
-              study_id,
-              object_key,
-              original_filename,
-              mime_type,
-              size_bytes,
-              duration_seconds,
-              upload_date,
-              order_index
-         FROM video_clip
-        WHERE id = $1
-        ORDER BY order_index`,
+      `SELECT vc.id,
+              vc.study_id,
+              vc.object_key,
+              vc.original_filename,
+              vc.mime_type,
+              vc.size_bytes,
+              vc.duration_seconds,
+              vc.upload_date,
+              vc.order_index,
+              s.title,
+              s.protocol,
+              u.first_name,
+              u.last_name
+         FROM video_clip vc
+         JOIN study s ON vc.study_id = s.id
+         JOIN users u ON s.student_id = u.id
+        WHERE vc.id = $1
+        ORDER BY vc.order_index`,
       [id]
     );
 

@@ -1,2 +1,4 @@
 export { createEvaluation } from "./createEvaluation";
-export { listEvaluationsByStudent } from "./listEvaluationsByStudent";
+export { getEvaluations } from "./getEvaluations";
+export { updateEvaluation } from "./updateEvaluation";
+

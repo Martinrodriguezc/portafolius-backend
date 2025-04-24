@@ -1,25 +1,21 @@
 import { Request, Response } from "express";
 import { pool } from "../../config/db";
 
-export const getStudentStudies = async (
+export const getAllStudiesWithEvaluationStatus = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const rawId = req.params.userId;
-  const studentId = Number(rawId);
-  if (isNaN(studentId)) {
-    res.status(400).json({ msg: "ID de estudiante inválido" });
-    return;
-  }
-
   try {
-    const result = await pool.query(
-      `SELECT 
-        s.id,
+    const result = await pool.query(`
+      SELECT 
+        s.id AS study_id,
         s.title,
         s.protocol,
         s.status,
         s.created_at,
+        u.first_name,
+        u.last_name,
+        u.email,
         EXISTS (
           SELECT 1 FROM evaluation_form ef WHERE ef.study_id = s.id
         ) AS has_evaluation,
@@ -31,16 +27,13 @@ export const getStudentStudies = async (
           LIMIT 1
         ) AS score
       FROM study s
-      WHERE s.student_id = $1
-      ORDER BY s.created_at DESC`,
-      [userId]
-    );
+      JOIN users u ON u.id = s.student_id
+      ORDER BY s.created_at DESC;
+    `);
 
     res.json({ studies: result.rows });
   } catch (error) {
-    console.error("Error al obtener estudios del usuario:", error);
-    res
-      .status(500)
-      .json({ msg: "Error al obtener estudios del usuario" });
+    console.error("Error al obtener todos los estudios:", error);
+    res.status(500).json({ msg: "Error al obtener estudios" });
   }
 };

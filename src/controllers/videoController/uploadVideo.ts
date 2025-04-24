@@ -33,6 +33,7 @@ export const generateUploadUrl = async (
        RETURNING id`,
       [studyId, key, fileName, contentType, sizeBytes]
     );
+    console.log("wena")
 
     const clipId = insertResult.rows[0].id;
     logger.info(`Generada URL para subir video: ${fileName}`);
@@ -44,3 +45,4 @@ export const generateUploadUrl = async (
       .json({ msg: "Error al generar la URL para subir el video" });
   }
 };
+
