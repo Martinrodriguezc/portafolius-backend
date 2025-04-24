@@ -33,3 +33,40 @@ export const createEvaluation = async (
   }
 };
 
+export const saveDiagnosis = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { diagnosis } = req.body;
+    const videoId = req.params.videoId;
+    const studentId: number = (req as any).user.id;
+
+    await pool.query(
+      `INSERT INTO video_diagnosis (video_id, student_id, diagnosis)
+       VALUES ($1, $2, $3)`,
+      [videoId, studentId, diagnosis]
+    );
+
+    logger.info(`Diagnóstico guardado para video ${videoId} por estudiante ${studentId}`);
+    res.status(200).json({ message: "Diagnóstico guardado exitosamente" });
+  } catch (error) {
+    logger.error("Error al guardar diagnóstico", { error });
+    res.status(500).json({ error: "Error interno al guardar diagnóstico" });
+  }
+};
+
+export const getDiagnosedVideos = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const studentId: number = (req as any).user.id;
+
+    const result = await pool.query(
+      `SELECT video_id FROM video_diagnosis WHERE student_id = $1`,
+      [studentId]
+    );
+
+    const diagnosedVideoIds = result.rows.map((row) => row.video_id);
+
+    res.status(200).json({ diagnosedVideoIds });
+  } catch (error) {
+    logger.error("Error al obtener diagnósticos", { error });
+    res.status(500).json({ error: "Error interno al obtener diagnósticos" });
+  }
+};

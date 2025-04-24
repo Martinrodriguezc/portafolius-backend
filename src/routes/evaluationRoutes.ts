@@ -1,5 +1,13 @@
 import { Router } from "express";
-import { createEvaluation, getEvaluations, updateEvaluation } from "../controllers/evaluationController";
+import {
+  createEvaluation,
+  getEvaluations,
+  updateEvaluation
+} from "../controllers/evaluationController";
+import {
+  saveDiagnosis,
+  getDiagnosedVideos
+} from "../controllers/evaluationController/createEvaluation";
 import { authenticateToken } from "../middleware/authenticateToken";
 import { getEvaluationByStudy } from "../controllers/evaluationController/getEvaluationByStudy";
 
@@ -17,21 +25,23 @@ router.post(
   createEvaluation
 );
 
-router.put(
-  "/:id",
+router.get(
+  "/diagnosis",
   (req, res, next) => { authenticateToken(req, res, next); },
-  updateEvaluation
+  getDiagnosedVideos
 );
 
-router.get("/by-study/:studyId", getEvaluationByStudy);
-
+router.post(
+  "/diagnosis/:videoId",
+  (req, res, next) => { authenticateToken(req, res, next); },
+  saveDiagnosis
+);
 
 router.get(
-  "/",
+  "/by-study/:studyId",
   (req, res, next) => { authenticateToken(req, res, next); },
-  listEvaluationsByStudent
+  getEvaluationByStudy
 );
 
-
-
 export default router;
+
