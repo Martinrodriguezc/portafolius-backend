@@ -1,5 +1,6 @@
 import { pool } from "../config/db";
 import logger from "../config/logger";
+import { seedTagHierarchy } from "../seeds/tagSeed";
 
 export const initializeDatabase = async (): Promise<void> => {
   try {
@@ -51,13 +52,41 @@ export const initializeDatabase = async (): Promise<void> => {
         sent_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    // Tabla de órganos
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS organ (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) UNIQUE NOT NULL
+      );
+    `);
+
+    // Tabla de estructuras (zonas del órgano)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS structure (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        organ_id INTEGER NOT NULL REFERENCES organ(id),
+        UNIQUE(name, organ_id)
+      );
+    `);
+
+    // Tabla de condiciones médicas asociadas a estructuras
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS condition (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        structure_id INTEGER NOT NULL REFERENCES structure(id),
+        UNIQUE(name, structure_id)
+      );
+    `);
 
     // Crear tabla de etiquetas
     await pool.query(`
       CREATE TABLE IF NOT EXISTS tag (
         id SERIAL PRIMARY KEY,
-        name VARCHAR(100) UNIQUE NOT NULL,
-        created_by INTEGER REFERENCES users(id)
+        name VARCHAR(250) UNIQUE NOT NULL,
+        created_by INTEGER REFERENCES users(id),
+        condition_id INTEGER REFERENCES condition(id)
       );
     `);
 
@@ -105,8 +134,8 @@ export const initializeDatabase = async (): Promise<void> => {
         PRIMARY KEY (clip_id, tag_id)
       );
     `);
-
-    logger.info("Base de datos inicializada correctamente");
+    logger.info("Base de datos inicializada");  
+    await seedTagHierarchy();
   } catch (error) {
     logger.error("Error al inicializar la base de datos", { error });
     throw error;
