@@ -39,6 +39,7 @@ if (NODE_ENV === "production") {
     cors({
       origin: allowedOrigins,
       optionsSuccessStatus: 200,
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     })
   );
 } else {
