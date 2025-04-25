@@ -12,7 +12,7 @@ export const getTeacherVideos = async (
       `SELECT
          vc.id,
          vc.study_id,
-         vc.file_path AS original_filename,
+         vc.original_filename,
          vc.upload_date,
          vc.duration_seconds
        FROM video_clip vc
@@ -30,7 +30,7 @@ export const getTeacherVideos = async (
       `SELECT
          vc.id,
          vc.study_id,
-         vc.file_path AS original_filename,
+         vc.original_filename,
          ef.submitted_at   AS evaluated_at,
          ef.score,
          vc.duration_seconds
