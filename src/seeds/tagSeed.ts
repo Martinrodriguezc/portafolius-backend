@@ -1,7 +1,15 @@
 import { pool } from "../config/db";
 import logger from "../config/logger";
+import { 
+  Organ, 
+  Structure, 
+  Condition, 
+  Tag, 
+  IdMap, 
+  SeedTagHierarchy 
+} from "../types/seeds";
 
-export const seedTagHierarchy = async (): Promise<void> => {
+export const seedTagHierarchy: SeedTagHierarchy = async (): Promise<void> => {
   try {
     // Primero, crear un usuario administrador si no existe
     await pool.query(
@@ -18,7 +26,7 @@ export const seedTagHierarchy = async (): Promise<void> => {
     );
 
     // Obtener el ID del usuario administrador
-    const { rows: adminRows } = await pool.query(
+    const { rows: adminRows } = await pool.query<{ id: number }>(
       `SELECT id FROM users WHERE email = 'admin@example.com'`
     );
 
@@ -28,44 +36,49 @@ export const seedTagHierarchy = async (): Promise<void> => {
 
     const adminId = adminRows[0].id;
 
-    // Continuar con el resto del seed
-    const organs = ["Hígado", "Riñón", "Vesícula biliar", "Bazo", "Páncreas"];
+    // Definir órganos con tipo
+    const organs: Organ[] = [
+      { name: 'Hígado' },
+      { name: 'Riñón' },
+      { name: 'Vesícula biliar' },
+      { name: 'Bazo' },
+      { name: 'Páncreas' }
+    ];
+
+    // Insertar órganos
     for (const organ of organs) {
       await pool.query(
         `INSERT INTO organ (name)
          SELECT CAST($1 AS VARCHAR(100)) WHERE NOT EXISTS (
            SELECT 1 FROM organ WHERE name = CAST($1 AS VARCHAR(100))
          );`,
-        [organ]
+        [organ.name]
       );
     }
 
-    const { rows: organRows } = await pool.query(`SELECT * FROM organ`);
-    const organMap: Record<string, number> = {};
-    organRows.forEach((o: any) => (organMap[o.name] = o.id));
+    // Obtener IDs de órganos
+    const { rows: organRows } = await pool.query<{ id: number; name: string }>(
+      `SELECT * FROM organ`
+    );
+    const organMap: IdMap = {};
+    organRows.forEach((o) => organMap[o.name] = o.id);
 
-    const structures = [
-      // Hígado
-      { name: "Lóbulo derecho", organ: "Hígado" },
-      { name: "Lóbulo izquierdo", organ: "Hígado" },
-      { name: "Vena porta", organ: "Hígado" },
-
-      // Riñón
-      { name: "Parénquima renal", organ: "Riñón" },
-      { name: "Seno renal", organ: "Riñón" },
-
-      // Vesícula biliar
-      { name: "Pared", organ: "Vesícula biliar" },
-      { name: "Lumen", organ: "Vesícula biliar" },
-
-      // Bazo
-      { name: "Parénquima esplénico", organ: "Bazo" },
-
-      // Páncreas
-      { name: "Cabeza", organ: "Páncreas" },
-      { name: "Cuerpo", organ: "Páncreas" },
-      { name: "Cola", organ: "Páncreas" },
+    // Definir estructuras con tipo
+    const structures: Structure[] = [
+      { name: 'Lóbulo derecho', organ: 'Hígado' },
+      { name: 'Lóbulo izquierdo', organ: 'Hígado' },
+      { name: 'Vena porta', organ: 'Hígado' },
+      { name: 'Parénquima renal', organ: 'Riñón' },
+      { name: 'Seno renal', organ: 'Riñón' },
+      { name: 'Pared', organ: 'Vesícula biliar' },
+      { name: 'Lumen', organ: 'Vesícula biliar' },
+      { name: 'Parénquima esplénico', organ: 'Bazo' },
+      { name: 'Cabeza', organ: 'Páncreas' },
+      { name: 'Cuerpo', organ: 'Páncreas' },
+      { name: 'Cola', organ: 'Páncreas' },
     ];
+
+    // Insertar estructuras
     for (const s of structures) {
       await pool.query(
         `INSERT INTO structure (name, organ_id)
@@ -77,41 +90,33 @@ export const seedTagHierarchy = async (): Promise<void> => {
     }
 
     const { rows: structureRows } = await pool.query(`SELECT * FROM structure`);
-    const structureMap: Record<string, number> = {};
+    const structureMap: IdMap = {};
     structureRows.forEach((s: any) => (structureMap[s.name] = s.id));
 
-    const conditions = [
-      // Hígado
-      { name: "Quiste", structure: "Lóbulo derecho" },
-      { name: "Esteatosis", structure: "Lóbulo derecho" },
-      { name: "Hemangioma", structure: "Lóbulo izquierdo" },
-      { name: "Nódulo focal", structure: "Lóbulo izquierdo" },
-      { name: "Hepatomegalia", structure: "Lóbulo derecho" },
-      { name: "Normal", structure: "Lóbulo derecho" },
-
-      // Riñón
-      { name: "Litiasis renal", structure: "Seno renal" },
-      { name: "Hidronefrosis", structure: "Seno renal" },
-      { name: "Quiste renal", structure: "Parénquima renal" },
-      { name: "Atrofia cortical", structure: "Parénquima renal" },
-      { name: "Normal", structure: "Parénquima renal" },
-
-      // Vesícula biliar
-      { name: "Colelitiasis", structure: "Lumen" },
-      { name: "Colecistitis", structure: "Pared" },
-      { name: "Pólipo vesicular", structure: "Lumen" },
-      { name: "Normal", structure: "Pared" },
-
-      // Bazo
-      { name: "Esplenomegalia", structure: "Parénquima esplénico" },
-      { name: "Quiste esplénico", structure: "Parénquima esplénico" },
-      { name: "Normal", structure: "Parénquima esplénico" },
-
-      // Páncreas
-      { name: "Pancreatitis", structure: "Cabeza" },
-      { name: "Páncreas normal", structure: "Cuerpo" },
-      { name: "Quiste pancreático", structure: "Cola" },
+    // Definir condiciones con tipo
+    const conditions: Condition[] = [
+      { name: 'Quiste', structure: 'Lóbulo derecho' },
+      { name: 'Esteatosis', structure: 'Lóbulo derecho' },
+      { name: 'Hemangioma', structure: 'Lóbulo izquierdo' },
+      { name: 'Nódulo focal', structure: 'Lóbulo izquierdo' },
+      { name: 'Hepatomegalia', structure: 'Lóbulo derecho' },
+      { name: 'Normal', structure: 'Lóbulo derecho' },
+      { name: 'Litiasis renal', structure: 'Seno renal' },
+      { name: 'Hidronefrosis', structure: 'Seno renal' },
+      { name: 'Quiste renal', structure: 'Parénquima renal' },
+      { name: 'Atrofia cortical', structure: 'Parénquima renal' },
+      { name: 'Colelitiasis', structure: 'Lumen' },
+      { name: 'Colecistitis', structure: 'Pared' },
+      { name: 'Pólipo vesicular', structure: 'Lumen' },
+      { name: 'Esplenomegalia', structure: 'Parénquima esplénico' },
+      { name: 'Quiste esplénico', structure: 'Parénquima esplénico' },
+      { name: 'Normal', structure: 'Parénquima esplénico' },
+      { name: 'Pancreatitis', structure: 'Cabeza' },
+      { name: 'Páncreas normal', structure: 'Cuerpo' },
+      { name: 'Quiste pancreático', structure: 'Cola' },
     ];
+
+    // Insertar condiciones
     for (const c of conditions) {
       await pool.query(
         `INSERT INTO condition (name, structure_id)
@@ -123,17 +128,19 @@ export const seedTagHierarchy = async (): Promise<void> => {
     }
 
     const { rows: conditionRows } = await pool.query(`SELECT * FROM condition`);
-    const conditionMap: Record<string, number> = {};
+    const conditionMap: IdMap = {};
     conditionRows.forEach(
       (c: any) => (conditionMap[`${c.name}-${c.structure_id}`] = c.id)
     );
 
-    const tags = conditions.map((cond) => ({
+    // Definir tags con tipo
+    const tags: Tag[] = conditions.map((cond) => ({
       name: `${cond.name} (${cond.structure})`,
       condition: cond.name,
       structure: cond.structure,
     }));
 
+    // Insertar tags
     for (const t of tags) {
       const key = `${t.condition}-${structureMap[t.structure]}`;
       if (!conditionMap[key]) {
