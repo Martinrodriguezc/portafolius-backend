@@ -10,6 +10,7 @@ export const createEvaluation = async (
   const { studyId } = req.params;
   const { score, feedback_summary } = req.body;
 
+
   // Extrae el ID del profesor desde el token (inyectado por authenticateToken)
   const teacherId: number = (req as any).user.id;
 
@@ -25,10 +26,16 @@ export const createEvaluation = async (
        RETURNING id, study_id, teacher_id, submitted_at, score, feedback_summary`,
       [studyId, teacherId, score, feedback_summary]
     );
+
+    console.log("[createEvaluation] Evaluación insertada:", result.rows[0]);
+
     logger.info(`Nueva evaluación creada: ${result.rows[0].id}`);
     res.status(201).json(result.rows[0]);
   } catch (error) {
     logger.error("Error al crear evaluación", { error });
+
+    console.error("[createEvaluation] Error al insertar:", error);
+
     res.status(500).json({ msg: "Error al crear evaluación" });
   }
 };
