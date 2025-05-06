@@ -4,6 +4,7 @@ import { generateDownloadUrl } from "../controllers/videoController/downloadVide
 import { getVideoMetadata } from "../controllers/videoController/getVideoMetadata";
 import { getAllTags } from "../controllers/videoController/getTags";
 import { getTagsUtils } from "../controllers/videoController/getTagsUtils";
+import { cropVideo } from "../controllers/videoController/cropVideo";
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.get("/generate_download_url/:clipId", generateDownloadUrl);
 router.get("/:id/meta", getVideoMetadata);
 router.get("/tags", getAllTags);
 router.get("/tag_utils", getTagsUtils);
+router.post("/crop", cropVideo);
 
 export default router;
