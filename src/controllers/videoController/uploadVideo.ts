@@ -49,21 +49,6 @@ export const generateUploadUrl = async (
 
     const clipId = insertResult.rows[0].id;
     logger.info(`Clip creado (ID ${clipId}) con protocolo "${protocol}".`);
-
-    // 3) Si vienen tagIds, insertarlos en la tabla intermedia clip_tag
-    if (Array.isArray(tagIds) && tagIds.length > 0) {
-      const assignPromises = tagIds.map((tagId: number) =>
-        pool.query(
-          `INSERT INTO clip_tag (clip_id, tag_id, assigned_by)
-           VALUES ($1, $2, $3)
-           ON CONFLICT DO NOTHING`, // previene duplicados
-          [clipId, tagId, userId]
-        )
-      );
-      await Promise.all(assignPromises);
-      logger.info(`Etiquetas [${tagIds.join(", ")}] asignadas a clip ${clipId}.`);
-    }
-
     // 4) Devolver URL y clipId al cliente
     res.json({ uploadUrl, clipId });
   } catch (error) {

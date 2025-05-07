@@ -7,7 +7,7 @@ export const assignTagsToClip = async (
     res: Response
 ): Promise<void> => {
     const clipId = Number(req.params.clipId);
-    const { tagIds } = req.body;
+    const { tagIds, userId } = req.body;
 
     if (isNaN(clipId)) {
         res.status(400).json({ msg: "clipId inválido" });
@@ -24,7 +24,7 @@ export const assignTagsToClip = async (
                 `INSERT INTO clip_tag (clip_id, tag_id, assigned_by)
          VALUES ($1, $2, $3)
          ON CONFLICT DO NOTHING`,
-                [clipId, tagId, req.body.userId]
+                [clipId, tagId, userId]
             )
         );
         await Promise.all(queries);
