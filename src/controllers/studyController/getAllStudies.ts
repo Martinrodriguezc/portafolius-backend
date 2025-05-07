@@ -10,7 +10,7 @@ export const getAllStudiesWithEvaluationStatus = async (
       SELECT 
         s.id AS study_id,
         s.title,
-        s.protocol,
+        s.description,
         s.status,
         s.created_at,
         u.first_name,

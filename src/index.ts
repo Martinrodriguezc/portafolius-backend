@@ -31,6 +31,7 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
+
 app.use(cors(corsOptions));
 
 if (NODE_ENV === "production") {

@@ -20,7 +20,6 @@ export const getEvaluations = async (
         ef.score,
         ef.feedback_summary,
         s.title,
-        s.protocol,
         s.created_at,
         stu.first_name AS student_first_name,
         stu.last_name AS student_last_name,

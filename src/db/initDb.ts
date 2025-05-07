@@ -23,17 +23,55 @@ export const initializeDatabase = async (): Promise<void> => {
         id SERIAL PRIMARY KEY,
         student_id INTEGER NOT NULL REFERENCES users(id),
         title VARCHAR(255) NOT NULL,
-        protocol TEXT,
+        description TEXT,
         status VARCHAR(50) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    // Tabla de órganos
+    await pool.query(`
+          CREATE TABLE IF NOT EXISTS organ (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) UNIQUE NOT NULL
+          );
+        `);
+
+    // Tabla de estructuras (zonas del órgano)
+    await pool.query(`
+          CREATE TABLE IF NOT EXISTS structure (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            organ_id INTEGER NOT NULL REFERENCES organ(id),
+            UNIQUE(name, organ_id)
+          );
+        `);
+
+    // Tabla de condiciones médicas asociadas a estructuras
+    await pool.query(`
+          CREATE TABLE IF NOT EXISTS condition (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            structure_id INTEGER NOT NULL REFERENCES structure(id),
+            UNIQUE(name, structure_id)
+          );
+        `);
+
+    // Crear tabla de etiquetas
+    await pool.query(`
+          CREATE TABLE IF NOT EXISTS tag (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(250) UNIQUE NOT NULL,
+            created_by INTEGER REFERENCES users(id),
+            condition_id INTEGER REFERENCES condition(id)
+          );
+        `);
 
     // Crear tabla de video_clip
     await pool.query(`
       CREATE TABLE IF NOT EXISTS video_clip (
         id SERIAL PRIMARY KEY,
         study_id INTEGER NOT NULL REFERENCES study(id),
+        protocol TEXT,
         object_key TEXT NOT NULL,
         original_filename TEXT NOT NULL,
         mime_type TEXT NOT NULL,
@@ -42,7 +80,8 @@ export const initializeDatabase = async (): Promise<void> => {
         upload_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         order_index INTEGER NOT NULL,
         deleted_by_teacher BOOLEAN NOT NULL DEFAULT FALSE,
-        status VARCHAR(50) NOT NULL DEFAULT 'pendiente'
+        status VARCHAR(50) NOT NULL DEFAULT 'pendiente',
+        tag_id INTEGER REFERENCES tag(id)
       );
     `);
 
@@ -54,43 +93,6 @@ export const initializeDatabase = async (): Promise<void> => {
         receiver_id INTEGER NOT NULL REFERENCES users(id),
         content TEXT NOT NULL,
         sent_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    // Tabla de órganos
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS organ (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) UNIQUE NOT NULL
-      );
-    `);
-
-    // Tabla de estructuras (zonas del órgano)
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS structure (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        organ_id INTEGER NOT NULL REFERENCES organ(id),
-        UNIQUE(name, organ_id)
-      );
-    `);
-
-    // Tabla de condiciones médicas asociadas a estructuras
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS condition (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        structure_id INTEGER NOT NULL REFERENCES structure(id),
-        UNIQUE(name, structure_id)
-      );
-    `);
-
-    // Crear tabla de etiquetas
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS tag (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(250) UNIQUE NOT NULL,
-        created_by INTEGER REFERENCES users(id),
-        condition_id INTEGER REFERENCES condition(id)
       );
     `);
 
@@ -159,12 +161,12 @@ export const initializeDatabase = async (): Promise<void> => {
     logger.info("Base de datos inicializada correctamente");
     try {
       await seedTagHierarchy();
-      
+
       logger.info("Seeds ejecutados correctamente");
     } catch (seedError) {
       logger.error("Error al ejecutar los seeds", { error: seedError });
     }
-    
+
   } catch (error) {
     logger.error("Error al inicializar la base de datos", { error });
     throw error;
