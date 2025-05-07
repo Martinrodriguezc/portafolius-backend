@@ -13,9 +13,7 @@ export const config = {
   PORT: process.env.PORT,
   DATABASE_URL: process.env.DATABASE_URL || '',
   JWT_SECRET: process.env.JWT_SECRET,
-  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
-    : [],
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
   S3_BUCKET: process.env.S3_BUCKET,
 };

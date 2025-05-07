@@ -22,6 +22,7 @@ const app = express();
 const PORT = config.PORT || 3000;
 const NODE_ENV = config.NODE_ENV;
 
+//REVISAR
 const corsOptions = {
   origin: config.ALLOWED_ORIGINS,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -29,6 +30,7 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
 };
+
 
 app.use(cors(corsOptions));
 

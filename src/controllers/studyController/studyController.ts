@@ -17,7 +17,7 @@ export const getStudentStudies = async (
       `SELECT 
         s.id,
         s.title,
-        s.protocol,
+        s.description,
         s.status,
         s.created_at,
         EXISTS (
