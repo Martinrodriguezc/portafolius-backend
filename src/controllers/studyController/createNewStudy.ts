@@ -6,23 +6,22 @@ export const createNewStudy = async (
   res: Response
 ): Promise<void> => {
   const { userId } = req.params;
-  const { title, protocol } = req.body;
+  const { title, description } = req.body;
 
-  if (!title || !protocol) {
-    res.status(400).json({ msg: 'Debe proporcionar title y protocol' });
+  if (!title || !description) {
+    res.status(400).json({ msg: 'Debe proporcionar titulo, descripción y fecha' });
     return;
-  }
+  }  
 
   try {
     const status = 'pendiente';
-    const createdAt = new Date();
 
     const result = await pool.query(
       `INSERT INTO study
-         (student_id, title, protocol, status, created_at)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, student_id, title, protocol, status, created_at`,
-      [userId, title, protocol, status, createdAt]
+         (student_id, title, description, status)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, student_id, title, description, status, created_at`,
+      [userId, title, description, status]
     );
 
     const newStudy = result.rows[0];
