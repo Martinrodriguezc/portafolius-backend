@@ -4,6 +4,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import logger from "../../config/logger";
 import { S3_CLIENT } from "../../config/s3";
 import { pool } from "../../config/db";
+import { config } from "../../config";
 
 export const generateUploadUrl = async (
   req: Request,
@@ -21,7 +22,7 @@ export const generateUploadUrl = async (
 
   const key = `users/${userId}/${Date.now()}_${fileName}`;
   const command = new PutObjectCommand({
-    Bucket: "portafolius-videos",
+    Bucket: config.S3_BUCKET,
     Key: key,
     ContentType: contentType,
   });
