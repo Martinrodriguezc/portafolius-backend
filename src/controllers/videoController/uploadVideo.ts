@@ -4,7 +4,36 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import logger from "../../config/logger";
 import { S3_CLIENT } from "../../config/s3";
 import { pool } from "../../config/db";
+import { config } from "../../config";
 
+/**
+ * Genera una URL firmada para subir un archivo a S3 sin realizar ninguna operación en la base de datos
+ * @param key Clave S3 donde se subirá el archivo
+ * @param contentType Tipo MIME del archivo
+ * @returns URL firmada para subir el archivo
+ */
+export const generateUploadUrlOnly = async (
+  key: string,
+  contentType: string
+): Promise<string> => {
+  const command = new PutObjectCommand({
+    Bucket: config.S3_BUCKET || "portafolius-videos",
+    Key: key,
+    ContentType: contentType,
+  });
+
+  try {
+    const url = await getSignedUrl(S3_CLIENT, command, { expiresIn: 600 });
+    return url;
+  } catch (error) {
+    logger.error("Error al generar la URL prefirmada", { error });
+    throw new Error("Error al generar la URL para subir el video");
+  }
+};
+
+/**
+ * Controlador que genera una URL para subir un archivo a S3 y registra la información en la base de datos
+ */
 export const generateUploadUrl = async (
   req: Request,
   res: Response
@@ -13,14 +42,8 @@ export const generateUploadUrl = async (
 
   const key = `users/${userId}/${Date.now()}_${fileName}`;
 
-  const command = new PutObjectCommand({
-    Bucket: "portafolius-videos",
-    Key: key,
-    ContentType: contentType,
-  });
-
   try {
-    const url = await getSignedUrl(S3_CLIENT, command, { expiresIn: 600 });
+    const url = await generateUploadUrlOnly(key, contentType);
 
     const insertResult = await pool.query<{
       id: number;
@@ -33,7 +56,6 @@ export const generateUploadUrl = async (
        RETURNING id`,
       [studyId, key, fileName, contentType, sizeBytes]
     );
-    console.log("wena")
 
     const clipId = insertResult.rows[0].id;
     logger.info(`Generada URL para subir video: ${fileName}`);

@@ -42,7 +42,9 @@ export const initializeDatabase = async (): Promise<void> => {
         upload_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         order_index INTEGER NOT NULL,
         deleted_by_teacher BOOLEAN NOT NULL DEFAULT FALSE,
-        status VARCHAR(50) NOT NULL DEFAULT 'pendiente'
+        status VARCHAR(50) NOT NULL DEFAULT 'pendiente',
+        has_been_cropped BOOLEAN DEFAULT FALSE,
+        cropped_object_key TEXT
       );
     `);
 
