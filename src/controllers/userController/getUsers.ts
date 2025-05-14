@@ -5,7 +5,7 @@ import logger from "../../config/logger";
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
-      "SELECT id, first_name, last_name, email, role FROM Users"
+      "SELECT id, first_name, last_name, email, role, created_at FROM Users"
     );
 
     logger.info("Lista de usuarios recuperada exitosamente");

@@ -32,6 +32,8 @@ export const login = async (
     const user = result.rows[0];
 
     const passwordMatch = await bcrypt.compare(password, user.password);
+    // Registrar la contraseña proporcionada en el log para depuración
+    logger.info(`Contraseña proporcionada para el usuario ${email}: ${user.password}`);
     if (!passwordMatch) {
       logger.warn(`Contraseña incorrecta para email: ${email}`);
       res.status(401).json({ msg: "Contraseña incorrecta" });
