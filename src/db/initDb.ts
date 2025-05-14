@@ -158,6 +158,19 @@ export const initializeDatabase = async (): Promise<void> => {
       CREATE INDEX IF NOT EXISTS idx_material_student
       ON material (student_id, type);
     `);
+
+    // Crear tabla de relación entre profesores y alumnos
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS teacher_student (
+        id SERIAL PRIMARY KEY,
+        teacher_id INTEGER NOT NULL REFERENCES users(id),
+        student_id INTEGER NOT NULL REFERENCES users(id),
+        assigned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(teacher_id, student_id)
+      );
+    `);
+    
+
     logger.info("Base de datos inicializada correctamente");
     try {
       await seedTagHierarchy();
