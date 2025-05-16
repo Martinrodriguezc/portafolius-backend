@@ -7,7 +7,7 @@ export {
   getEstudiosPorMes,
   getTasaFinalizacionEstudios,
   getTopProfesoresEvaluaciones,
-  getMensajesPorMes,
+  getVideoClipsPorMes,
   getMaterialPorTipo,
   getUsuariosPorPromedio
 } from './metricas'; 

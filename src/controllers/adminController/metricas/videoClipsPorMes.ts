@@ -3,20 +3,20 @@ import { pool } from '../../../config/db';
 import logger from '../../../config/logger';
 
 /**
- * Obtiene la cantidad de mensajes enviados por mes en los últimos 6 meses
+ * Obtiene la cantidad de video_clips subidos por mes en los últimos 6 meses
  */
-export const getMensajesPorMes = async (req: Request, res: Response): Promise<void> => {
+export const getVideoClipsPorMes = async (req: Request, res: Response): Promise<void> => {
   try {
     const query = `
       SELECT 
-        TO_CHAR(sent_at, 'YYYY-MM') as mes,
+        TO_CHAR(upload_date, 'YYYY-MM') as mes,
         COUNT(*) as cantidad
       FROM 
-        message
+        video_clip
       WHERE 
-        sent_at >= NOW() - INTERVAL '6 months'
+        upload_date >= NOW() - INTERVAL '6 months'
       GROUP BY 
-        TO_CHAR(sent_at, 'YYYY-MM')
+        TO_CHAR(upload_date, 'YYYY-MM')
       ORDER BY 
         mes
     `;
@@ -28,10 +28,10 @@ export const getMensajesPorMes = async (req: Request, res: Response): Promise<vo
       data: result.rows
     });
   } catch (error) {
-    logger.error('Error al obtener mensajes por mes', { error });
+    logger.error('Error al obtener video_clips por mes', { error });
     res.status(500).json({
       success: false,
-      message: 'Error al obtener mensajes enviados por mes',
+      message: 'Error al obtener video_clips subidos por mes',
       error: (error as Error).message
     });
   }

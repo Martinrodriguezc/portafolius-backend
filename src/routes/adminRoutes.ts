@@ -8,7 +8,7 @@ import {
   getEstudiosPorMes,
   getTasaFinalizacionEstudios,
   getTopProfesoresEvaluaciones,
-  getMensajesPorMes,
+  getVideoClipsPorMes,
   getMaterialPorTipo,
   getUsuariosPorPromedio
 } from "../controllers/adminController";
@@ -45,7 +45,7 @@ router.get("/metricas/usuarios-por-mes", authAdminMiddleware, getUsuariosPorMes)
 router.get("/metricas/estudios-por-mes", authAdminMiddleware, getEstudiosPorMes);
 router.get("/metricas/tasa-finalizacion-estudios", authAdminMiddleware, getTasaFinalizacionEstudios);
 router.get("/metricas/top-profesores-evaluaciones", authAdminMiddleware, getTopProfesoresEvaluaciones);
-router.get("/metricas/mensajes-por-mes", authAdminMiddleware, getMensajesPorMes);
+router.get("/metricas/video-clips-por-mes", authAdminMiddleware, getVideoClipsPorMes);
 router.get("/metricas/material-por-tipo", authAdminMiddleware, getMaterialPorTipo);
 router.get("/metricas/usuarios-por-promedio", authAdminMiddleware, getUsuariosPorPromedio);
 
