@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { generateUploadUrl } from "../controllers/videoController/uploadVideo";
+import { generateUploadUrl, uploadCallback } from "../controllers/videoController/uploadVideo";
 import { generateDownloadUrl } from "../controllers/videoController/downloadVideo";
 import { getVideoMetadata } from "../controllers/videoController/getVideoMetadata";
 import { getAllTags } from "../controllers/videoController/getTags";
 import { getTagsUtils } from "../controllers/videoController/getTagsUtils";
 import { assignTagsToClip } from "../controllers/videoController/assignTagsToClip";
+import { getThumbnailDownloadUrl } from "../controllers/thumbnailController/getThumbnailDownloadUrl";
 
 const router = Router();
 
@@ -14,5 +15,7 @@ router.get("/:id/meta", getVideoMetadata);
 router.get("/tags", getAllTags);
 router.post("/:clipId/tags", assignTagsToClip);
 router.get("/tag_utils", getTagsUtils);
+router.post("/upload-callback", uploadCallback)
+router.get('/:videoId/thumbnail-download-url', getThumbnailDownloadUrl)
 
 export default router;
