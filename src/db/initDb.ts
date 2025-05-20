@@ -141,6 +141,7 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
+    // Crear tabla de materiales
     await pool.query(`
       CREATE TABLE IF NOT EXISTS material (
         id           SERIAL PRIMARY KEY,
@@ -154,9 +155,37 @@ export const initializeDatabase = async (): Promise<void> => {
         uploaded_at  TIMESTAMPTZ DEFAULT NOW()
       );
     `);
+
+    // Registrar quién creó cada material (profesor)
+    await pool.query(`
+      ALTER TABLE material
+      ADD COLUMN IF NOT EXISTS created_by INTEGER NOT NULL REFERENCES users(id);
+    `);
+
+    // Índice básico para búsqueda por estudiante y tipo (mantener el tuyo)
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_material_student
       ON material (student_id, type);
+    `);
+
+    // Tabla puente para asignar un material a N estudiantes
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS material_assignment (
+        material_id INTEGER NOT NULL REFERENCES material(id),
+        student_id  INTEGER NOT NULL REFERENCES users(id),
+        assigned_by INTEGER NOT NULL REFERENCES users(id),
+        assigned_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (material_id, student_id)
+      );
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_material_student
+      ON material (student_id, type);
+    `);
+    // Después de crear material_assignment…
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_material_assignment_student
+      ON material_assignment (student_id);
     `);
     logger.info("Base de datos inicializada correctamente");
     try {
