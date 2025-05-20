@@ -1,4 +1,3 @@
-// src/middleware/authenticateToken.ts
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { config } from "../config";
@@ -12,13 +11,13 @@ export const authenticateToken = (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): void => {                           // <-- especificamos que retorna `void`
+): void => {                          
   const authHeader = req.headers["authorization"];
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     logger.warn("Token de autorización no proporcionado o mal formado");
     res.status(401).json({ msg: "No autorizado, token no proporcionado o mal formado" });
-    return;                          // <-- no devolvemos el `Response`, solo cortamos
+    return;                         
   }
 
   const token = authHeader.split(" ")[1];
