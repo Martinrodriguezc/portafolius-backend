@@ -5,13 +5,9 @@ import { getMaterialAssignments } from "../controllers/materialController/getMat
 
 const router = Router();
 
-// Recuperar materiales para un estudiante (público)
 router.get("/:id", getStudentMaterials);
 
-// Crear material y asignar (sólo profesores)
 router.post("/", createMaterial);
-
-// Consultar asignaciones de un material (sólo profesores)
 router.get("/:id/assignments", getMaterialAssignments);
 
 export default router;

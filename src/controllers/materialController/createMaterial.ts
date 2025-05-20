@@ -3,21 +3,12 @@ import { pool } from "../../config/db";
 import logger from "../../config/logger";
 import { AuthRequest } from "../../types/auth";
 
-/**
- * POST /materials
- * Crea un nuevo material y lo asigna a uno o varios estudiantes.
- * Body JSON:
- *  - type: 'document'|'video'|'link'
- *  - title, description, url, size_bytes, mime_type
- *  - studentIds?: number[]
- */
 export async function createMaterial(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    // casteamos para recuperar el user autenticado
     const authReq = req as AuthRequest;
     const teacherId = authReq.user!.user.id;
 
@@ -31,7 +22,6 @@ export async function createMaterial(
       studentIds = [],
     } = req.body;
 
-    // 1) Insertar el material con created_by
     const insertRes = await pool.query(
       `
       INSERT INTO material
@@ -44,7 +34,6 @@ export async function createMaterial(
     );
     const material = insertRes.rows[0];
 
-    // 2) Asignar a cada estudiante
     for (const studentId of studentIds) {
       await pool.query(
         `

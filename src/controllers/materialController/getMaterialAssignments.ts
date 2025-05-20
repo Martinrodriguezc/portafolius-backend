@@ -2,10 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { pool } from "../../config/db";
 import logger from "../../config/logger";
 
-/**
- * GET /materials/:id/assignments
- * Devuelve la lista de estudiantes a los que fue asignado un material
- */
 export async function getMaterialAssignments(
   req: Request,
   res: Response,

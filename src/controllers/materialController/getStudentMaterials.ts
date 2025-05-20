@@ -2,13 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { pool } from "../../config/db";
 import logger from "../../config/logger";
 
-/**
- * GET /materials/:id
- * Devuelve todos los materiales disponibles para un estudiante:
- *  - propios (student_id = id)
- *  - globales (student_id IS NULL)
- *  - asignados via material_assignment
- */
+
 export async function getStudentMaterials(
   req: Request,
   res: Response,
