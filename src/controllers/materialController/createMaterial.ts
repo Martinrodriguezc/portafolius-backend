@@ -1,16 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { pool } from "../../config/db";
 import logger from "../../config/logger";
-import { AuthRequest } from "../../types/auth";
+import { AuthenticatedRequest } from "../../middleware/authenticateToken";
 
 export async function createMaterial(
-  req: Request,
+  req: AuthenticatedRequest,      
   res: Response,
   next: NextFunction
-) {
+): Promise<void> {
   try {
-    const authReq = req as AuthRequest;
-    const teacherId = authReq.user!.user.id;
+    const teacherId = req.user!.id;
 
     const {
       type,
