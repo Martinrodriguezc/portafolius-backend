@@ -1,26 +1,22 @@
+// src/controllers/materialController/getStudentMaterials.ts
 import { Request, Response, NextFunction } from "express";
 import { pool } from "../../config/db";
 import logger from "../../config/logger";
 
-
 export async function getStudentMaterials(
-  req: Request,
-  res: Response,
-  next: NextFunction
+  req: Request, res: Response, next: NextFunction
 ) {
   try {
     const studentId = Number(req.params.id);
+    if (Number.isNaN(studentId)) {
+      return res.status(400).json({ msg: "ID de estudiante inválido" });
+    }
     const { rows } = await pool.query(
-      `
-      SELECT m.*, ma.assigned_at
-      FROM material AS m
-      LEFT JOIN material_assignment AS ma
-        ON ma.material_id = m.id AND ma.student_id = $1
-      WHERE m.student_id = $1
-         OR m.student_id IS NULL
-         OR ma.student_id = $1
-      ORDER BY m.uploaded_at DESC
-      `,
+      `SELECT *
+         FROM material
+        WHERE student_id = $1
+           OR student_id IS NULL
+        ORDER BY upload_date DESC`,
       [studentId]
     );
     res.json(rows);
