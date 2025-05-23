@@ -1,34 +1,21 @@
 import { Router } from "express";
+import { upload, createMaterial }   from "../controllers/materialController/createMaterial";
+import { getStudentMaterials }      from "../controllers/materialController/getStudentMaterials";
+import { getMaterialStats }         from "../controllers/materialController/getMaterialStats";
+import { getMaterialAssignments }   from "../controllers/materialController/getMaterialAssignments";
+import { downloadMaterial }         from "../controllers/materialController/downloadMaterial";
+
 import { authenticateToken } from "../middleware/authenticateToken";
-import { getStudentMaterials } from "../controllers/materialController/getStudentMaterials";
-import { getMaterialStats } from "../controllers/materialController/getMaterialStats";
-import { createMaterial } from "../controllers/materialController/createMaterial";
-import { getMaterialAssignments } from "../controllers/materialController/getMaterialAssignments";
 
 const router = Router();
 
-router.get(
-  "/summary",
-  authenticateToken,
-  getMaterialStats
-);
+router.get("/summary",      getMaterialStats);
+router.get("/student/:id",  getStudentMaterials);
+router.post("/",            authenticateToken, upload.single("file"), createMaterial);
+router.get("/:id/assignments", getMaterialAssignments);
+router.get("/download/:id", downloadMaterial);
 
-router.get(
-  "/:id",
-  authenticateToken,
-  getStudentMaterials
-);
 
-router.post(
-  "/",
-  authenticateToken,
-  createMaterial
-);
-
-router.get(
-  "/:id/assignments",
-  authenticateToken,
-  getMaterialAssignments
-);
+router.get("/download/:id", downloadMaterial);
 
 export default router;

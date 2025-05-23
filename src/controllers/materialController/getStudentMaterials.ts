@@ -31,6 +31,7 @@ export const getStudentMaterials: RequestHandler<{ id: string }> = async (req, r
       [studentId]
     );
     res.json(rows);
+    return;
   } catch (err) {
     logger.error("Error fetching student materials:", err);
     next(err);

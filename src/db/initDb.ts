@@ -161,6 +161,11 @@ export const initializeDatabase = async (): Promise<void> => {
       ALTER TABLE material
       ADD COLUMN IF NOT EXISTS created_by INTEGER NOT NULL REFERENCES users(id);
     `);
+    
+    await pool.query(`
+      ALTER TABLE material
+      ADD COLUMN IF NOT EXISTS file_data BYTEA;
+    `);
 
     // Índice básico para búsqueda por estudiante y tipo (mantener el tuyo)
     await pool.query(`

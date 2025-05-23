@@ -1,39 +1,54 @@
-import { Request, Response, NextFunction } from "express";
+import { RequestHandler } from "express";
+import multer from "multer";
 import { pool } from "../../config/db";
 import logger from "../../config/logger";
 import { AuthenticatedRequest } from "../../middleware/authenticateToken";
 
-export async function createMaterial(
-  req: AuthenticatedRequest,      
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export const upload = multer({ storage: multer.memoryStorage() });
+
+export const createMaterial: RequestHandler = async (
+  req: AuthenticatedRequest & { file?: Express.Multer.File },
+  res,
+  next
+): Promise<void> => {
   try {
     const teacherId = req.user!.id;
+    const { type, title, description } = req.body;
+    const studentIds: number[] = req.body.studentIds
+      ? JSON.parse(req.body.studentIds)
+      : [];
 
-    const {
-      type,
-      title,
-      description,
-      url,
-      size_bytes,
-      mime_type,
-      studentIds = [],
-    } = req.body;
+    if (!req.file) {
+      res.status(400).json({ msg: "Falta archivo adjunto" });
+      return;
+    }
 
-    const insertRes = await pool.query(
+    const { originalname, mimetype, size, buffer } = req.file;
+    const safeName = originalname.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    const url = `/materials/download/${Date.now()}-${safeName}`;
+
+    const insert = await pool.query<{ id: number }>(
       `
       INSERT INTO material
-        (student_id, type, title, description, url, size_bytes, mime_type, created_by)
+        (student_id, type, title, description, url, size_bytes, mime_type, created_by, file_data)
       VALUES
-        (NULL, $1, $2, $3, $4, $5, $6, $7)
-      RETURNING *
+        (NULL, $1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id
       `,
-      [type, title, description, url, size_bytes, mime_type, teacherId]
+      [
+        type,
+        title,
+        description,
+        url,
+        size,
+        mimetype,
+        teacherId,
+        buffer,
+      ]
     );
-    const material = insertRes.rows[0];
+    const materialId = insert.rows[0].id;
 
-    for (const studentId of studentIds) {
+    for (const sid of studentIds) {
       await pool.query(
         `
         INSERT INTO material_assignment
@@ -41,13 +56,13 @@ export async function createMaterial(
         VALUES ($1, $2, $3)
         ON CONFLICT DO NOTHING
         `,
-        [material.id, studentId, teacherId]
+        [materialId, sid, teacherId]
       );
     }
 
-    res.status(201).json({ material });
+    res.status(201).json({ materialId, url });
   } catch (err) {
     logger.error("Error creating material:", err);
     next(err);
   }
-}
+};
