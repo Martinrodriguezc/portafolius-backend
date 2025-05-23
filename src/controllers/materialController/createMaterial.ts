@@ -13,19 +13,34 @@ export const createMaterial: RequestHandler = async (
 ): Promise<void> => {
   try {
     const teacherId = req.user!.id;
-    const { type, title, description } = req.body;
+    const { type, title, description, url: linkUrl } = req.body;
     const studentIds: number[] = req.body.studentIds
       ? JSON.parse(req.body.studentIds)
       : [];
 
-    if (!req.file) {
-      res.status(400).json({ msg: "Falta archivo adjunto" });
-      return;
-    }
+    let url: string;
+    let size: number | null = null;
+    let mime_type: string | null = null;
+    let buffer: Buffer | null = null;
 
-    const { originalname, mimetype, size, buffer } = req.file;
-    const safeName = originalname.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-    const url = `/materials/download/${Date.now()}-${safeName}`;
+    if (type === "link") {
+      if (!linkUrl) {
+        res.status(400).json({ msg: "Falta URL para enlace" });
+        return;
+      }
+      url = linkUrl;
+    } else {
+      if (!req.file) {
+        res.status(400).json({ msg: "Falta archivo adjunto" });
+        return;
+      }
+      const { originalname, mimetype, size: fsize, buffer: fbuffer } = req.file;
+      const safeName = originalname.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      url = `/materials/download/${Date.now()}-${safeName}`;
+      size = fsize;
+      mime_type = mimetype;
+      buffer = fbuffer;
+    }
 
     const insert = await pool.query<{ id: number }>(
       `
@@ -35,16 +50,7 @@ export const createMaterial: RequestHandler = async (
         (NULL, $1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING id
       `,
-      [
-        type,
-        title,
-        description,
-        url,
-        size,
-        mimetype,
-        teacherId,
-        buffer,
-      ]
+      [type, title, description, url, size, mime_type, teacherId, buffer]
     );
     const materialId = insert.rows[0].id;
 
