@@ -12,6 +12,7 @@ import userRouter from "./routes/userRoutes";
 import evaluationRouter from "./routes/evaluationRoutes";
 import teacherRouter from "./routes/teacherRoutes";
 import materialRoutes from "./routes/materialRoutes";
+import metricRoutes from "./routes/metricRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
 import { initializeDatabase } from "./db/initDb";
@@ -64,6 +65,7 @@ app.use("/video", uploadRouter);
 app.use("/study", studyRouter);
 app.use("/teacher", teacherRouter);
 app.use("/materials", materialRoutes);
+app.use("/metrics", metricRoutes);
 
 const startServer = async () => {
   try {
