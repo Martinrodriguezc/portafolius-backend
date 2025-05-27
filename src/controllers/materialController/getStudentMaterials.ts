@@ -1,4 +1,3 @@
-// src/controllers/materialController/getStudentMaterials.ts
 import { RequestHandler } from "express";
 import { pool }          from "../../config/db";
 import logger            from "../../config/logger";
