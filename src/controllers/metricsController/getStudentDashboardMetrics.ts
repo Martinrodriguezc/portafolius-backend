@@ -8,6 +8,7 @@ export interface StudentDashboardMetrics {
   monthlyComments: { mes: string; comments_count: number }[]
   topStudies: { study_id: number; title: string; score: number }[]
   bottomStudies: { study_id: number; title: string; score: number }[]
+  evaluations: { submitted_at: string; score: number }[]
 }
 
 export const getStudentDashboardMetrics: RequestHandler<{ id: string }> = async (req, res, next) => {
@@ -78,6 +79,16 @@ export const getStudentDashboardMetrics: RequestHandler<{ id: string }> = async 
       [studentId]
     )
 
+    const evalsR = await pool.query<{ submitted_at: string; score: number }>(
+      `SELECT e.submitted_at,
+              e.score
+       FROM evaluation_form e
+       JOIN study s ON e.study_id = s.id
+       WHERE s.student_id = $1
+       ORDER BY e.submitted_at`,
+      [studentId]
+    )
+
     res.json({
       monthlyScores: scoresR.rows,
       monthlyStudies: studiesR.rows,
@@ -85,6 +96,7 @@ export const getStudentDashboardMetrics: RequestHandler<{ id: string }> = async 
       monthlyComments: commentsR.rows,
       topStudies: topR.rows,
       bottomStudies: bottomR.rows,
+      evaluations: evalsR.rows
     } as StudentDashboardMetrics)
   } catch (err) {
     next(err)
