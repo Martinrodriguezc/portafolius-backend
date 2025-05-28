@@ -10,7 +10,10 @@ import {
   getTopProfesoresEvaluaciones,
   getVideoClipsPorMes,
   getMaterialPorTipo,
-  getUsuariosPorPromedio
+  getUsuariosPorPromedio,
+  autorizarProfesor,
+  getProfesoresPendientes,
+  rechazarProfesor
 } from "../controllers/adminController";
 import { authenticateToken, AuthenticatedRequest } from "../middleware/authenticateToken";
 
@@ -48,5 +51,10 @@ router.get("/metricas/top-profesores-evaluaciones", authAdminMiddleware, getTopP
 router.get("/metricas/video-clips-por-mes", authAdminMiddleware, getVideoClipsPorMes);
 router.get("/metricas/material-por-tipo", authAdminMiddleware, getMaterialPorTipo);
 router.get("/metricas/usuarios-por-promedio", authAdminMiddleware, getUsuariosPorPromedio);
+
+// Rutas para manejo de profesores
+router.patch("/usuarios/:id/autorizar", authAdminMiddleware, autorizarProfesor);
+router.delete("/usuarios/:id/rechazar", authAdminMiddleware, rechazarProfesor);
+router.get("/usuarios/profesores-pendientes", authAdminMiddleware, getProfesoresPendientes);
 
 export default router; 

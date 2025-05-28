@@ -11,3 +11,6 @@ export {
   getMaterialPorTipo,
   getUsuariosPorPromedio
 } from './metricas'; 
+export { autorizarProfesor } from './autorizarProfesor';
+export { getProfesoresPendientes } from './getProfesoresPendientes';
+export { rechazarProfesor } from './rechazarProfesor'; 

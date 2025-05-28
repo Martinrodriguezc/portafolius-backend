@@ -40,6 +40,7 @@ export const getAssignments = async (
       assignedAt: row.assigned_at
     }));
 
+    
     logger.info("Lista de asignaciones profesor-estudiante obtenida exitosamente");
     res.status(200).json({ assignments });
 
