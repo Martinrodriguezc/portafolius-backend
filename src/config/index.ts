@@ -16,4 +16,5 @@ export const config = {
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
   S3_BUCKET: process.env.S3_BUCKET,
+  AWS_REGION: process.env.AWS_REGION,
 };
