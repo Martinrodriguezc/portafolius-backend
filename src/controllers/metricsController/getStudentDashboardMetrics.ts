@@ -2,14 +2,15 @@ import { RequestHandler } from 'express'
 import { pool } from '../../config/db'
 
 export interface StudentDashboardMetrics {
-  monthlyScores: { mes: string; average_score: number }[]
-  monthlyStudies: { mes: string; studies_count: number }[]
-  monthlyVideos: { mes: string; videos_count: number }[]
-  monthlyComments: { mes: string; comments_count: number }[]
-  topStudies: { study_id: number; title: string; score: number }[]
-  bottomStudies: { study_id: number; title: string; score: number }[]
-  evaluations: { submitted_at: string; score: number }[]
-  tagScores: { tag: string; average_score: number }[]            
+  monthlyScores:      { mes: string; average_score: number }[]
+  monthlyStudies:     { mes: string; studies_count: number }[]
+  monthlyVideos:      { mes: string; videos_count: number }[]
+  monthlyComments:    { mes: string; comments_count: number }[]
+  topStudies:         { study_id: number; title: string; score: number }[]
+  bottomStudies:      { study_id: number; title: string; score: number }[]
+  evaluations:        { submitted_at: string; score: number }[]
+  tagScores:          { tag: string; average_score: number }[]
+  protocolCounts:     { protocol: string; count: number }[] 
 }
 
 export const getStudentDashboardMetrics: RequestHandler<{ id: string }> = async (req, res, next) => {
@@ -95,15 +96,26 @@ export const getStudentDashboardMetrics: RequestHandler<{ id: string }> = async 
       ORDER BY tg.name
     `, [studentId])
 
+    const protoR = await pool.query<{ protocol: string; count: number }>(`
+      SELECT vc.protocol       AS protocol,
+             COUNT(*)::int     AS count
+      FROM video_clip vc
+      JOIN study s ON vc.study_id = s.id
+      WHERE s.student_id = $1
+      GROUP BY vc.protocol
+      ORDER BY vc.protocol
+    `, [studentId])
+
     res.json({
-      monthlyScores: scoresR.rows,
-      monthlyStudies: studiesR.rows,
-      monthlyVideos: videosR.rows,
+      monthlyScores:   scoresR.rows,
+      monthlyStudies:  studiesR.rows,
+      monthlyVideos:   videosR.rows,
       monthlyComments: commentsR.rows,
-      topStudies: topR.rows,
-      bottomStudies: bottomR.rows,
-      evaluations: evalsR.rows,
-      tagScores: tagR.rows                                        
+      topStudies:      topR.rows,
+      bottomStudies:   bottomR.rows,
+      evaluations:     evalsR.rows,
+      tagScores:       tagR.rows,
+      protocolCounts:  protoR.rows         
     } as StudentDashboardMetrics)
   } catch (err) {
     next(err)
