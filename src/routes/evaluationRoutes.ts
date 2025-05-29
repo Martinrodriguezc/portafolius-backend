@@ -1,47 +1,45 @@
 import { Router } from "express";
+import { authenticateToken } from "../middleware/authenticateToken";
+
+// Evaluaciones por estudio (legacy)
 import {
   createEvaluation,
   getEvaluations,
-  updateEvaluation
+  updateEvaluation,
 } from "../controllers/evaluationController";
+
+// Diagnóstico por vídeo
 import {
   saveDiagnosis,
-  getDiagnosedVideos
+  getDiagnosedVideos,
 } from "../controllers/evaluationController/createEvaluation";
-import { authenticateToken } from "../middleware/authenticateToken";
+
+// Última evaluación por estudio
 import { getEvaluationByStudy } from "../controllers/evaluationController/getEvaluationByStudy";
 
 const router = Router();
 
-router.get(
-  "/",
-  (req, res, next) => { authenticateToken(req, res, next); },
-  getEvaluations
-);
+// Todas estas rutas requieren token
+router.use(authenticateToken);
 
-router.post(
-  "/:studyId",
-  (req, res, next) => { authenticateToken(req, res, next); },
-  createEvaluation
-);
+// Listar todas las evaluaciones de quien inició sesión (profesor)
+router.get("/", getEvaluations);
 
-router.get(
-  "/diagnosis",
-  (req, res, next) => { authenticateToken(req, res, next); },
-  getDiagnosedVideos
-);
+// Crear nueva evaluación sobre un estudio
+router.post("/:studyId", createEvaluation);
 
-router.post(
-  "/diagnosis/:videoId",
-  (req, res, next) => { authenticateToken(req, res, next); },
-  saveDiagnosis
-);
+// Actualizar evaluación existente
+router.put("/:id", updateEvaluation);
 
-router.get(
-  "/by-study/:studyId",
-  (req, res, next) => { authenticateToken(req, res, next); },
-  getEvaluationByStudy
-);
+// Listar vídeos que el alumno ya diagnosticó
+router.get("/diagnosis", getDiagnosedVideos);
+
+// Guardar un diagnóstico sobre un vídeo
+router.post("/diagnosis/:videoId", saveDiagnosis);
+
+// Traer la última evaluación de un estudio
+router.get("/by-study/:studyId", getEvaluationByStudy);
 
 export default router;
+
 
