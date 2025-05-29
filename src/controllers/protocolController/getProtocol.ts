@@ -5,7 +5,7 @@ export const getProtocol: RequestHandler = async (req, res, next) => {
   try {
     const { key } = req.params;
 
-    
+    // 1) Buscar el protocolo
     const protoR = await pool.query<{
       id: number;
       name: string;
@@ -18,12 +18,12 @@ export const getProtocol: RequestHandler = async (req, res, next) => {
     );
 
     if (protoR.rows.length === 0) {
-      return res.status(404).json({ msg: "Protocolo no encontrado" });
+      res.status(404).json({ msg: "Protocolo no encontrado" });
+      return; 
     }
 
     const { id, name } = protoR.rows[0];
 
-    
     const sectionsR = await pool.query<{
       id: number;
       key: string;
@@ -36,7 +36,6 @@ export const getProtocol: RequestHandler = async (req, res, next) => {
       [id]
     );
 
-    
     const sections = await Promise.all(
       sectionsR.rows.map(async (sec) => {
         const itemsR = await pool.query<{
@@ -60,7 +59,6 @@ export const getProtocol: RequestHandler = async (req, res, next) => {
       })
     );
 
-    
     res.json({ key, name, sections });
   } catch (err) {
     next(err);
