@@ -1,6 +1,7 @@
 import { pool } from "../config/db";
 import logger from "../config/logger";
 import { seedTagHierarchy } from "../seeds/tagSeed";
+import { seedProtocols }    from "../seeds/protocolSeed";
 
 export const initializeDatabase = async (): Promise<void> => {
   try {
@@ -255,6 +256,7 @@ export const initializeDatabase = async (): Promise<void> => {
     logger.info("Base de datos inicializada correctamente");
     try {
       await seedTagHierarchy();
+      await seedProtocols();
 
       logger.info("Seeds ejecutados correctamente");
     } catch (seedError) {
