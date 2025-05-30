@@ -5,7 +5,6 @@ export const getProtocol: RequestHandler = async (req, res, next) => {
   try {
     const { key } = req.params;
 
-    // 1) Buscar el protocolo
     const protoR = await pool.query<{
       id: number;
       name: string;
