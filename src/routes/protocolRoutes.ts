@@ -1,9 +1,9 @@
 import { Router } from 'express'
 import {
   getAllProtocols,
-  getProtocol,
   createProtocol,
 } from '../controllers/protocolController/protocolController'
+import { getProtocol } from '../controllers/protocolController'
 
 const router = Router()
 
