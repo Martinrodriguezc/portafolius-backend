@@ -10,8 +10,12 @@ import studyRouter from "./routes/studyRoutes";
 import authRouter from "./routes/authRoutes";
 import userRouter from "./routes/userRoutes";
 import evaluationRouter from "./routes/evaluationRoutes";
+import protocolRouter   from "./routes/protocolRoutes";
 import teacherRouter from "./routes/teacherRoutes";
 import materialRoutes from "./routes/materialRoutes";
+import metricRoutes from "./routes/metricRoutes";
+import attemptRoutes   from "./routes/attemptRoutes";
+import responseRoutes  from "./routes/responseRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
 import { initializeDatabase } from "./db/initDb";
@@ -60,10 +64,15 @@ app.get("/health", async (_req: Request, res: Response) => {
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
 app.use("/evaluations", evaluationRouter);
+app.use("/protocols", protocolRouter);
 app.use("/video", uploadRouter);
 app.use("/study", studyRouter);
 app.use("/teacher", teacherRouter);
 app.use("/materials", materialRoutes);
+app.use("/metrics", metricRoutes);
+
+app.use(attemptRoutes);
+app.use(responseRoutes);
 
 const startServer = async () => {
   try {

@@ -5,6 +5,7 @@ import logger from "../../config/logger";
 import { S3_CLIENT } from "../../config/s3";
 import { pool } from "../../config/db";
 import { config } from "../../config";
+import { generateThumbnail } from "../thumbnailController/generateThumbnail";
 
 export const generateUploadUrl = async (
   req: Request,
@@ -51,11 +52,26 @@ export const generateUploadUrl = async (
     const clipId = insertResult.rows[0].id;
     logger.info(`Clip creado (ID ${clipId}) con protocolo "${protocol}".`);
     // 4) Devolver URL y clipId al cliente
-    res.json({ uploadUrl, clipId });
+    res.json({ uploadUrl, clipId, key });
   } catch (error) {
     logger.error("Error al generar la URL prefirmada o insertar clip:", { error });
     res
       .status(500)
       .json({ msg: "Error al generar la URL para subir el video" });
+  }
+};
+
+export const uploadCallback = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { key, videoId } = req.body;
+
+  try {
+      await generateThumbnail(key);
+      res.json({ success: true, thumbnailKey: key.replace('videos/', 'videos/thumbnails/').replace('.mp4', '.jpg') });
+  } catch (err) {
+      console.error('Error al generar thumbnail:', err);
+      res.status(500).json({ message: 'No se pudo generar la miniatura' });
   }
 };
