@@ -22,7 +22,6 @@ interface ProtocolDef {
   sections: ProtocolSectionDef[];
 }
 
-// Definición reutilizable de las secciones de “cardiaco”
 const CARDIACO_SECTIONS: ProtocolSectionDef[] = [
   {
     key: 'adq',
@@ -50,16 +49,8 @@ const CARDIACO_SECTIONS: ProtocolSectionDef[] = [
 ];
 
 const PROTOCOLS: ProtocolDef[] = [
-  {
-    key: 'cardiaco',
-    name: 'Cardíaco',
-    sections: CARDIACO_SECTIONS,
-  },
-  {
-    key: 'pulmon',
-    name: 'Pulmón',
-    sections: [
-      // Mantengo el pulmon original
+  { key: 'cardiaco', name: 'Cardíaco', sections: CARDIACO_SECTIONS },
+  { key: 'pulmon',   name: 'Pulmón',   sections: [
       {
         key: 'adq',
         name: 'Image Generation',
@@ -86,88 +77,70 @@ const PROTOCOLS: ProtocolDef[] = [
           { key: 'Normal',     label: 'Normal',           scale: 'binary', max: 1 },
         ],
       },
-    ],
+    ]
   },
-
-  // Los nuevos protocolos heredan las secciones de "cardiaco"
-  {
-    key: 'fate',
-    name: 'FATE',
-    sections: CARDIACO_SECTIONS,
-  },
-  {
-    key: 'fast',
-    name: 'FAST',
-    sections: CARDIACO_SECTIONS,
-  },
-  {
-    key: 'rush',
-    name: 'RUSH',
-    sections: CARDIACO_SECTIONS,
-  },
-  {
-    key: 'blue',
-    name: 'BLUE',
-    sections: CARDIACO_SECTIONS,
-  },
-  {
-    key: 'focus',
-    name: 'FOCUS',
-    sections: CARDIACO_SECTIONS,
-  },
+  // Por ahora los demás heredan CARDIACO
+  { key: 'fate',  name: 'FATE',  sections: CARDIACO_SECTIONS },
+  { key: 'fast',  name: 'FAST',  sections: CARDIACO_SECTIONS },
+  { key: 'rush',  name: 'RUSH',  sections: CARDIACO_SECTIONS },
+  { key: 'blue',  name: 'BLUE',  sections: CARDIACO_SECTIONS },
+  { key: 'focus', name: 'FOCUS', sections: CARDIACO_SECTIONS },
 ];
 
 export const seedProtocols = async (): Promise<void> => {
   try {
     for (const p of PROTOCOLS) {
-      // 1) Insertar protocolo si no existe
+      // Insertar protocolo con CAST
       const protRes = await pool.query<{ id: number }>(
         `INSERT INTO protocol(key,name)
-           SELECT $1, $2
-            WHERE NOT EXISTS (
-              SELECT 1 FROM protocol WHERE key = $1
-            )
-         RETURNING id`,
+           SELECT CAST($1 AS VARCHAR(50)), CAST($2 AS VARCHAR(100))
+            WHERE NOT EXISTS (SELECT 1 FROM protocol WHERE key = CAST($1 AS VARCHAR(50)))
+         RETURNING id;`,
         [p.key, p.name]
       );
       const protocolId =
         protRes.rows[0]?.id ??
         (
           await pool.query<{ id: number }>(
-            `SELECT id FROM protocol WHERE key = $1`,
+            `SELECT id FROM protocol WHERE key = CAST($1 AS VARCHAR(50))`,
             [p.key]
           )
         ).rows[0].id;
 
-      // 2) Insertar secciones + items
       for (const sec of p.sections) {
+        // Insertar sección con CAST
         const secRes = await pool.query<{ id: number }>(
           `INSERT INTO protocol_section(protocol_id,key,name,sort_order)
-             SELECT $1,$2,$3,$4
+             SELECT $1, CAST($2 AS VARCHAR(50)), CAST($3 AS VARCHAR(100)), $4
               WHERE NOT EXISTS (
                 SELECT 1 FROM protocol_section
-                 WHERE protocol_id=$1 AND key=$2
+                 WHERE protocol_id = $1 AND key = CAST($2 AS VARCHAR(50))
               )
-           RETURNING id`,
+           RETURNING id;`,
           [protocolId, sec.key, sec.name, sec.order]
         );
         const sectionId =
           secRes.rows[0]?.id ??
           (
             await pool.query<{ id: number }>(
-              `SELECT id FROM protocol_section WHERE protocol_id=$1 AND key=$2`,
+              `SELECT id FROM protocol_section WHERE protocol_id=$1 AND key=CAST($2 AS VARCHAR(50))`,
               [protocolId, sec.key]
             )
           ).rows[0].id;
 
         for (const it of sec.items) {
+          // Insertar ítems con CAST
           await pool.query(
             `INSERT INTO protocol_item(section_id,key,label,score_scale,max_score)
-               SELECT $1,$2,$3,$4,$5
+               SELECT $1,
+                      CAST($2 AS VARCHAR(100)),
+                      CAST($3 AS VARCHAR(255)),
+                      CAST($4 AS VARCHAR(20)),
+                      $5
                 WHERE NOT EXISTS (
                   SELECT 1 FROM protocol_item
-                   WHERE section_id=$1 AND key=$2
-                )`,
+                   WHERE section_id=$1 AND key = CAST($2 AS VARCHAR(100))
+                );`,
             [sectionId, it.key, it.label, it.scale, it.max]
           );
         }
@@ -180,3 +153,4 @@ export const seedProtocols = async (): Promise<void> => {
     throw error;
   }
 };
+
