@@ -86,6 +86,15 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
+    // Crear tabla de protocolos
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS protocol (
+        id   SERIAL PRIMARY KEY,
+        name VARCHAR(100) UNIQUE NOT NULL
+      );
+    `);
+
+
     // Crear tabla de mensajes
     await pool.query(`
       CREATE TABLE IF NOT EXISTS message (

@@ -1,6 +1,14 @@
-import { Router } from "express";
-import { getProtocol } from "../controllers/protocolController";
+import { Router } from 'express'
+import {
+  getAllProtocols,
+  getProtocol,
+  createProtocol,
+} from '../controllers/protocolController/protocolController'
 
-const router = Router();
-router.get("/:key", getProtocol);
-export default router;
+const router = Router()
+
+router.get('/', getAllProtocols)
+router.get('/:key', getProtocol)
+router.post('/', createProtocol)
+
+export default router
