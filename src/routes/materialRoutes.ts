@@ -6,6 +6,10 @@ import {
   updateMaterial,
   deleteMaterial
 } from "../controllers/materialController";
+import { getMaterialStats } from "../controllers/materialController/getMaterialStats";
+import { createMaterial, upload } from "../controllers/materialController/createMaterial";
+import { getMaterialAssignments } from "../controllers/materialController/getMaterialAssignments";
+import { downloadMaterial } from "../controllers/materialController/downloadMaterial";
 import { authenticateToken, AuthenticatedRequest } from "../middleware/authenticateToken";
 
 const router = Router();
@@ -38,9 +42,6 @@ router.put("/:id", authTeacherAdminMiddleware, updateMaterial);
 router.delete("/:id", authTeacherAdminMiddleware, deleteMaterial);
 router.post("/",            authenticateToken, upload.single("file"), createMaterial);
 router.get("/:id/assignments", getMaterialAssignments);
-router.get("/download/:id", downloadMaterial);
-
-
 router.get("/download/:id", downloadMaterial);
 
 export default router;

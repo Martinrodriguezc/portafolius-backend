@@ -24,14 +24,26 @@ const PORT = config.PORT || 3000;
 const NODE_ENV = config.NODE_ENV;
 
 //REVISAR
+const allowedOrigins = Array.isArray(config.ALLOWED_ORIGINS) 
+  ? config.ALLOWED_ORIGINS 
+  : config.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173'];
+
 const corsOptions = {
-  origin: config.ALLOWED_ORIGINS,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
+console.log('Allowed Origins:', allowedOrigins);
+console.log('CORS configuration:', corsOptions);
 
 app.use(cors(corsOptions));
 
