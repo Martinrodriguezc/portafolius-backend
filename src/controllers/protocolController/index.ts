@@ -1,0 +1,1 @@
+export { getProtocol } from "./getProtocol";

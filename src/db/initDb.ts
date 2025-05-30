@@ -1,6 +1,7 @@
 import { pool } from "../config/db";
 import logger from "../config/logger";
 import { seedTagHierarchy } from "../seeds/tagSeed";
+import { seedProtocols }    from "../seeds/protocolSeed";
 
 export const initializeDatabase = async (): Promise<void> => {
   try {
@@ -201,9 +202,77 @@ export const initializeDatabase = async (): Promise<void> => {
       CREATE INDEX IF NOT EXISTS idx_material_assignment_student
       ON material_assignment (student_id);
     `);
+
+    // 1) Modificamos evaluation_form para que pueda apuntar a un clip
+    await pool.query(`
+      ALTER TABLE evaluation_form
+      ADD COLUMN IF NOT EXISTS clip_id INTEGER REFERENCES video_clip(id);
+    `);
+
+    // Creamos la tabla de protocolos
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS protocol (
+        id   SERIAL PRIMARY KEY,
+        key  VARCHAR(50) UNIQUE NOT NULL,
+        name VARCHAR(100) NOT NULL
+      );
+    `);
+
+    //  Secciones dentro de cada protocolo
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS protocol_section (
+        id          SERIAL PRIMARY KEY,
+        protocol_id INTEGER NOT NULL REFERENCES protocol(id),
+        key         VARCHAR(50) NOT NULL,
+        name        VARCHAR(100) NOT NULL,
+        sort_order  INTEGER NOT NULL
+      );
+    `);
+
+    // Ítems de evaluación en cada sección
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS protocol_item (
+        id               SERIAL PRIMARY KEY,
+        section_id       INTEGER NOT NULL REFERENCES protocol_section(id),
+        key              VARCHAR(100) NOT NULL,
+        label            VARCHAR(255) NOT NULL,
+        score_scale      VARCHAR(20) NOT NULL,  -- '0-5' ó 'binary'
+        max_score        INTEGER NOT NULL       -- 5 para 0-5, 1 para binario
+      );
+    `);
+
+    // Intentos de evaluación: uno por vídeo y profesor
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS evaluation_attempt (
+        id           SERIAL PRIMARY KEY,
+        clip_id      INTEGER NOT NULL REFERENCES video_clip(id),
+        teacher_id   INTEGER NOT NULL REFERENCES users(id),
+        submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Respuestas de cada ítem en un intento
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS evaluation_response (
+        id               SERIAL PRIMARY KEY,
+        attempt_id       INTEGER NOT NULL REFERENCES evaluation_attempt(id),
+        protocol_item_id INTEGER NOT NULL REFERENCES protocol_item(id),
+        score            INTEGER NOT NULL CHECK (score >= 0),
+        UNIQUE(attempt_id, protocol_item_id)
+      );
+    `);
+
+  await pool.query(`
+      ALTER TABLE evaluation_attempt
+      ADD COLUMN IF NOT EXISTS comment TEXT;
+    `);
+
+    
+
     logger.info("Base de datos inicializada correctamente");
     try {
       await seedTagHierarchy();
+      await seedProtocols();
 
       logger.info("Seeds ejecutados correctamente");
     } catch (seedError) {
