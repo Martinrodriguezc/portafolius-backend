@@ -14,7 +14,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  if (role !== "estudiante" && role !== "profesor") {
+  const normalizedRole = role.toLowerCase();
+  if (normalizedRole !== "estudiante" && normalizedRole !== "profesor") {
     logger.warn(`Rol incorrecto: ${role}`);
     res.status(400).json({ msg: "Rol incorrecto" });
     return;
@@ -34,7 +35,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const autorizado = role !== "profesor"; // Solo los profesores tienen autorizado=false inicialmente
+    const autorizado = normalizedRole !== "profesor"; // Solo los profesores tienen autorizado=false inicialmente
 
     const newUser = await pool.query(
       `INSERT INTO users
@@ -42,7 +43,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
        VALUES
           ($1,          $2,        $3,    $4,   $5,       $6)
        RETURNING id, email, first_name, last_name, role, autorizado, created_at`,
-      [firstName, lastName, email, role, hashedPassword, autorizado]
+      [firstName, lastName, email, normalizedRole, hashedPassword, autorizado]
     );
 
     logger.info(`Usuario registrado correctamente: ${email}`);

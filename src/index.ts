@@ -23,7 +23,6 @@ const app = express();
 const PORT = config.PORT || 3000;
 const NODE_ENV = config.NODE_ENV;
 
-//REVISAR
 const corsOptions = {
   origin: config.ALLOWED_ORIGINS,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -31,7 +30,6 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
 };
-
 
 app.use(cors(corsOptions));
 
@@ -48,6 +46,12 @@ if (NODE_ENV === "production") {
 app.use(express.json());
 app.use(passport.initialize());
 
+// Ruta raíz para confirmar funcionamiento
+app.get("/", (req: Request, res: Response) => {
+  res.send("🚀 Backend PortafoliUS funcionando correctamente");
+});
+
+// Endpoint de salud con timestamp desde la BD
 app.get("/health", async (_req: Request, res: Response) => {
   try {
     const result = await pool.query("SELECT NOW()");
@@ -58,6 +62,7 @@ app.get("/health", async (_req: Request, res: Response) => {
   }
 });
 
+// Rutas
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
 app.use("/evaluations", evaluationRouter);

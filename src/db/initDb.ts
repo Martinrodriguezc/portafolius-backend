@@ -219,4 +219,17 @@ export const initializeDatabase = async (): Promise<void> => {
     logger.error("Error al inicializar la base de datos", { error });
     throw error;
   }
+
+  // Crear tabla de protocolos clínicos personalizados
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS protocol (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        steps JSONB NOT NULL, -- Guardaremos los pasos como array JSON
+        created_by INTEGER REFERENCES users(id),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
 };
