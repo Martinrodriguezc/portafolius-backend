@@ -86,14 +86,6 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
-    // Crear tabla de protocolos
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS protocol (
-        id   SERIAL PRIMARY KEY,
-        name VARCHAR(100) UNIQUE NOT NULL
-      );
-    `);
-
 
     // Crear tabla de mensajes
     await pool.query(`
@@ -225,7 +217,8 @@ export const initializeDatabase = async (): Promise<void> => {
         protocol_id INTEGER NOT NULL REFERENCES protocol(id),
         key         VARCHAR(50) NOT NULL,
         name        VARCHAR(100) NOT NULL,
-        sort_order  INTEGER NOT NULL
+        sort_order  INTEGER NOT NULL,
+        UNIQUE(protocol_id, key)
       );
     `);
 
@@ -236,8 +229,9 @@ export const initializeDatabase = async (): Promise<void> => {
         section_id       INTEGER NOT NULL REFERENCES protocol_section(id),
         key              VARCHAR(100) NOT NULL,
         label            VARCHAR(255) NOT NULL,
-        score_scale      VARCHAR(20) NOT NULL,  -- '0-5' ó 'binary'
-        max_score        INTEGER NOT NULL       -- 5 para 0-5, 1 para binario
+        score_scale      VARCHAR(20) NOT NULL, 
+        max_score        INTEGER NOT NULL,
+        UNIQUE(section_id, key)      
       );
     `);
 
@@ -267,7 +261,7 @@ export const initializeDatabase = async (): Promise<void> => {
       ADD COLUMN IF NOT EXISTS comment TEXT;
     `);
 
-    
+
 
     logger.info("Base de datos inicializada correctamente");
     try {

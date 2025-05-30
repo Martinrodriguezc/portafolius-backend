@@ -3,8 +3,8 @@ import { pool } from '../../config/db'
 
 export const getAllProtocols: RequestHandler = async (req, res, next) => {
   try {
-    const { rows } = await pool.query<{ id: number; name: string }>(
-      'SELECT id, name FROM protocol ORDER BY name'
+    const { rows } = await pool.query<{ id: number; key: string; name: string }>(
+    'SELECT id, key, name FROM protocol ORDER BY name'
     )
     res.json(rows)
   } catch (err) {

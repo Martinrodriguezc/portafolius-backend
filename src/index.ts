@@ -19,7 +19,6 @@ import responseRoutes  from "./routes/responseRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
 import { initializeDatabase } from "./db/initDb";
-import protocolRoutes from "./routes/protocolRoutes";
 
 dotenv.config();
 
@@ -71,7 +70,6 @@ app.use("/study", studyRouter);
 app.use("/teacher", teacherRouter);
 app.use("/materials", materialRoutes);
 app.use("/metrics", metricRoutes);
-app.use('/protocols', protocolRoutes)
 
 app.use(attemptRoutes);
 app.use(responseRoutes);
