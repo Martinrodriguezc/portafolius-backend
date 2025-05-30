@@ -12,7 +12,7 @@ export const listAttempts = async (req: Request, res: Response) => {
           ea.comment
         FROM evaluation_attempt ea
     LEFT JOIN evaluation_response er ON er.attempt_id = ea.id
-    JOIN "user" u ON u.id = ea.teacher_id
+    JOIN "users" u ON u.id = ea.teacher_id
     WHERE ea.clip_id = $1
     GROUP BY ea.id, teacher_name, ea.comment
     ORDER BY ea.submitted_at DESC`,

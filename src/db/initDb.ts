@@ -238,8 +238,7 @@ export const initializeDatabase = async (): Promise<void> => {
         id           SERIAL PRIMARY KEY,
         clip_id      INTEGER NOT NULL REFERENCES video_clip(id),
         teacher_id   INTEGER NOT NULL REFERENCES users(id),
-        submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        comment TEXT
+        submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -253,6 +252,13 @@ export const initializeDatabase = async (): Promise<void> => {
         UNIQUE(attempt_id, protocol_item_id)
       );
     `);
+
+  await pool.query(`
+      ALTER TABLE evaluation_attempt
+      ADD COLUMN IF NOT EXISTS comment TEXT;
+    `);
+
+    
 
     logger.info("Base de datos inicializada correctamente");
     try {
