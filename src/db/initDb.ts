@@ -238,7 +238,8 @@ export const initializeDatabase = async (): Promise<void> => {
         id           SERIAL PRIMARY KEY,
         clip_id      INTEGER NOT NULL REFERENCES video_clip(id),
         teacher_id   INTEGER NOT NULL REFERENCES users(id),
-        submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+        submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        comment TEXT
       );
     `);
 

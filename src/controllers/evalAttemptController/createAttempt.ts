@@ -4,7 +4,7 @@ import { pool } from "../../config/db";
 export const createAttempt: RequestHandler = async (req, res, next) => {
   const teacherId = (req as any).user.id;
   const clipId     = Number(req.params.clipId);
-  const { protocolKey, responses } = req.body;
+  const { protocolKey, responses, comment } = req.body;
 
   // Validación
   if (
@@ -18,10 +18,10 @@ export const createAttempt: RequestHandler = async (req, res, next) => {
   try {
     // 1) crear el attempt
     const attR = await pool.query<{ id: number; submitted_at: string }>(
-      `INSERT INTO evaluation_attempt(clip_id, teacher_id)
-       VALUES($1, $2)
-       RETURNING id, submitted_at`,
-      [clipId, teacherId]
+        `INSERT INTO evaluation_attempt(clip_id, teacher_id, comment)
+        VALUES($1, $2, $3)
+        RETURNING id, submitted_at`,
+        [clipId, teacherId, comment ?? null]
     );
     const attemptId = attR.rows[0].id;
 
