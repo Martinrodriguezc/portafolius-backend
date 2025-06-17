@@ -1,0 +1,1 @@
+export { saveClipSelection, getClipSelection } from './selectionController';
