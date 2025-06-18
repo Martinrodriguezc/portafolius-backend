@@ -1,3 +1,4 @@
+import { initializeDatabase } from "./db/initDb";
 import express, { Request, Response } from "express";
 import passport from "./config/passport";
 import cors from "cors";
@@ -18,7 +19,6 @@ import attemptRoutes   from "./routes/attemptRoutes";
 import responseRoutes  from "./routes/responseRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
-import { initializeDatabase } from "./db/initDb";
 
 dotenv.config();
 

@@ -21,21 +21,17 @@ import {
 
 const router = Router();
 
-// Protocolos básicos
 router.get('/', getAllProtocols);
 router.post('/', createProtocol);
 
-// Tablas fijas
 router.get('/image-qualities', getImageQualities);
 router.get('/final-diagnoses', getFinalDiagnoses);
 
-// Clip selection
 router.post('/video/:clipId/selection', saveClipSelection);
 router.get('/video/:clipId/selection', getClipSelection);
 
 router.get('/:key', getProtocol);
 
-// Jerarquía dinámica
 router.get('/:protocolKey/windows', getWindowsByProtocol);
 router.get('/:protocolKey/windows/:windowId/findings', getFindingsByWindow);
 router.get('/:protocolKey/windows/:windowId/findings/:findingId/diagnoses', getPossibleDiagnosesByFinding);

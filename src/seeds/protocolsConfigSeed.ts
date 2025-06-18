@@ -300,65 +300,63 @@ export const seedProtocolHierarchy = async (): Promise<void> => {
           }
         }
       }
-      // Seed subdiagnoses and deeper levels only once per possible_diagnosis
+      // Seed subdiagnoses and deeper levels for every matching possible_diagnosis
       if (proto.possibleDiagnoses) {
         for (const pd of proto.possibleDiagnoses) {
-          // fetch one possible_diagnosis id for this key under current protocol
-          const pdRows = await pool.query(
+          // fetch all possible_diagnosis ids for this key under current protocol
+          const pdRowsAll = await pool.query(
             `SELECT pd.id FROM possible_diagnosis pd
              JOIN finding f ON f.id = pd.finding_id
              JOIN protocol_window w ON w.id = f.window_id
-             WHERE pd.key = $1 AND w.protocol_id = $2
-             LIMIT 1;`,
+             WHERE pd.key = $1 AND w.protocol_id = $2;`,
             [pd.key, protocolId]
           );
-          if (pdRows.rowCount === 0) continue;
-          const pdId = pdRows.rows[0].id;
-
-          if (pd.subdiagnoses) {
-            for (const sd of pd.subdiagnoses) {
-              // insert subdiagnosis
-              const sdRes = await pool.query(
-                `INSERT INTO subdiagnosis (possible_diagnosis_id, key, name)
-                 VALUES ($1, $2, $3)
-                 ON CONFLICT (possible_diagnosis_id, key) DO NOTHING
-                 RETURNING id;`,
-                [pdId, sd.key, sd.key]
-              );
-              const sdId = sdRes.rows[0]?.id ?? (
-                await pool.query(
-                  `SELECT id FROM subdiagnosis
-                   WHERE possible_diagnosis_id = $1 AND key = $2;`,
-                  [pdId, sd.key]
-                )
-              ).rows[0].id;
-
-              if (sd.subSub) {
-                for (const ssub of sd.subSub) {
-                  const ssubRes = await pool.query(
-                    `INSERT INTO sub_subdiagnosis (subdiagnosis_id, key, name)
-                     VALUES ($1, $2, $3)
-                     ON CONFLICT (subdiagnosis_id, key) DO NOTHING
-                     RETURNING id;`,
-                    [sdId, ssub, ssub]
-                  );
-                  const ssubId = ssubRes.rows[0]?.id ?? (
-                    await pool.query(
-                      `SELECT id FROM sub_subdiagnosis
-                       WHERE subdiagnosis_id = $1 AND key = $2;`,
-                      [sdId, ssub]
-                    )
-                  ).rows[0].id;
-
-                  if (sd.thirdOrder) {
-                    for (const to of sd.thirdOrder.filter(t => t.key === ssub)) {
-                      for (const val of to.values) {
-                        await pool.query(
-                          `INSERT INTO third_order_diagnosis (sub_subdiagnosis_id, key, name)
-                           VALUES ($1, $2, $3)
-                           ON CONFLICT (sub_subdiagnosis_id, key) DO NOTHING;`,
-                          [ssubId, val, val]
-                        );
+          if (pdRowsAll.rowCount === 0) continue;
+          for (const row of pdRowsAll.rows) {
+            const pdId = row.id;
+            if (pd.subdiagnoses) {
+              for (const sd of pd.subdiagnoses) {
+                // insert subdiagnosis
+                const sdRes = await pool.query(
+                  `INSERT INTO subdiagnosis (possible_diagnosis_id, key, name)
+                   VALUES ($1, $2, $3)
+                   ON CONFLICT (possible_diagnosis_id, key) DO NOTHING
+                   RETURNING id;`,
+                  [pdId, sd.key, sd.key]
+                );
+                const sdId = sdRes.rows[0]?.id ?? (
+                  await pool.query(
+                    `SELECT id FROM subdiagnosis
+                     WHERE possible_diagnosis_id = $1 AND key = $2;`,
+                    [pdId, sd.key]
+                  )
+                ).rows[0].id;
+                if (sd.subSub) {
+                  for (const ssub of sd.subSub) {
+                    const ssubRes = await pool.query(
+                      `INSERT INTO sub_subdiagnosis (subdiagnosis_id, key, name)
+                       VALUES ($1, $2, $3)
+                       ON CONFLICT (subdiagnosis_id, key) DO NOTHING
+                       RETURNING id;`,
+                      [sdId, ssub, ssub]
+                    );
+                    const ssubId = ssubRes.rows[0]?.id ?? (
+                      await pool.query(
+                        `SELECT id FROM sub_subdiagnosis
+                         WHERE subdiagnosis_id = $1 AND key = $2;`,
+                        [sdId, ssub]
+                      )
+                    ).rows[0].id;
+                    if (sd.thirdOrder) {
+                      for (const to of sd.thirdOrder.filter(t => t.key === ssub)) {
+                        for (const val of to.values) {
+                          await pool.query(
+                            `INSERT INTO third_order_diagnosis (sub_subdiagnosis_id, key, name)
+                             VALUES ($1, $2, $3)
+                             ON CONFLICT (sub_subdiagnosis_id, key) DO NOTHING;`,
+                            [ssubId, val, val]
+                          );
+                        }
                       }
                     }
                   }

@@ -143,23 +143,6 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
-    // Tabla de selección de protocolo por video (solo una selección por estudiante por clip)
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS clip_protocol_selection (
-        id                         SERIAL PRIMARY KEY,
-        clip_id                    INTEGER NOT NULL REFERENCES video_clip(id) ON DELETE CASCADE,
-        user_id                    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        protocol_id                INTEGER NOT NULL REFERENCES protocol(id),
-        window_id                  INTEGER NOT NULL REFERENCES protocol_window(id),
-        finding_id                 INTEGER NOT NULL REFERENCES finding(id),
-        possible_diagnosis_id      INTEGER NOT NULL REFERENCES possible_diagnosis(id),
-        subdiagnosis_id            INTEGER REFERENCES subdiagnosis(id),
-        sub_subdiagnosis_id        INTEGER REFERENCES sub_subdiagnosis(id),
-        third_order_diagnosis_id   INTEGER REFERENCES third_order_diagnosis(id),
-        created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE (clip_id, user_id)
-      );
-    `);
 
     // Crear tabla de materiales
     await pool.query(`
@@ -352,6 +335,24 @@ export const initializeDatabase = async (): Promise<void> => {
       CREATE TABLE IF NOT EXISTS final_diagnosis (
         id   SERIAL PRIMARY KEY,
         name VARCHAR(50) UNIQUE NOT NULL
+      );
+    `);
+
+    // Tabla de selección de protocolo por video (solo una selección por estudiante por clip)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS clip_protocol_selection (
+        id                         SERIAL PRIMARY KEY,
+        clip_id                    INTEGER NOT NULL REFERENCES video_clip(id) ON DELETE CASCADE,
+        user_id                    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        protocol_id                INTEGER NOT NULL REFERENCES protocol(id),
+        window_id                  INTEGER NOT NULL REFERENCES protocol_window(id),
+        finding_id                 INTEGER NOT NULL REFERENCES finding(id),
+        possible_diagnosis_id      INTEGER NOT NULL REFERENCES possible_diagnosis(id),
+        subdiagnosis_id            INTEGER REFERENCES subdiagnosis(id),
+        sub_subdiagnosis_id        INTEGER REFERENCES sub_subdiagnosis(id),
+        third_order_diagnosis_id   INTEGER REFERENCES third_order_diagnosis(id),
+        created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (clip_id, user_id)
       );
     `);
 
