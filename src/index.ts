@@ -17,6 +17,7 @@ import materialRoutes from "./routes/materialRoutes";
 import metricRoutes from "./routes/metricRoutes";
 import attemptRoutes   from "./routes/attemptRoutes";
 import responseRoutes  from "./routes/responseRoutes";
+import interactionRoutes from './routes/interactionRoutes';
 import { config } from "./config";
 import logger from "./config/logger";
 
@@ -70,6 +71,7 @@ app.use("/study", studyRouter);
 app.use("/teacher", teacherRouter);
 app.use("/materials", materialRoutes);
 app.use("/metrics", metricRoutes);
+app.use("/interactions", interactionRoutes);
 
 app.use(attemptRoutes);
 app.use(responseRoutes);
