@@ -2,6 +2,7 @@ import { pool } from "../config/db";
 import logger from "../config/logger";
 import { seedTagHierarchy } from "../seeds/tagSeed";
 import { seedProtocols }    from "../seeds/protocolSeed";
+import { seedProtocolHierarchy } from "../seeds/protocolsConfigSeed";
 
 export const initializeDatabase = async (): Promise<void> => {
   try {
@@ -142,6 +143,7 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
+
     // Crear tabla de materiales
     await pool.query(`
       CREATE TABLE IF NOT EXISTS material (
@@ -260,11 +262,110 @@ export const initializeDatabase = async (): Promise<void> => {
       ADD COLUMN IF NOT EXISTS comment TEXT;
     `);
 
-    
+    // Tablas para protocolos dinámicos
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS protocol_window (
+        id          SERIAL PRIMARY KEY,
+        protocol_id INTEGER NOT NULL REFERENCES protocol(id) ON DELETE CASCADE,
+        key         VARCHAR(50) NOT NULL,
+        name        VARCHAR(100) NOT NULL,
+        UNIQUE(protocol_id, key)
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS finding (
+        id        SERIAL PRIMARY KEY,
+        window_id INTEGER NOT NULL REFERENCES protocol_window(id) ON DELETE CASCADE,
+        key       VARCHAR(50) NOT NULL,
+        name      VARCHAR(100) NOT NULL,
+        UNIQUE(window_id, key)
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS possible_diagnosis (
+        id         SERIAL PRIMARY KEY,
+        finding_id INTEGER NOT NULL REFERENCES finding(id) ON DELETE CASCADE,
+        key        VARCHAR(100) NOT NULL,
+        name       VARCHAR(255) NOT NULL,
+        UNIQUE(finding_id, key)
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS subdiagnosis (
+        id                    SERIAL PRIMARY KEY,
+        possible_diagnosis_id INTEGER NOT NULL REFERENCES possible_diagnosis(id) ON DELETE CASCADE,
+        key                   VARCHAR(100) NOT NULL,
+        name                  VARCHAR(255) NOT NULL,
+        UNIQUE(possible_diagnosis_id, key)
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS sub_subdiagnosis (
+        id               SERIAL PRIMARY KEY,
+        subdiagnosis_id  INTEGER NOT NULL REFERENCES subdiagnosis(id) ON DELETE CASCADE,
+        key              VARCHAR(100) NOT NULL,
+        name             VARCHAR(255) NOT NULL,
+        UNIQUE(subdiagnosis_id, key)
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS third_order_diagnosis (
+        id                   SERIAL PRIMARY KEY,
+        sub_subdiagnosis_id  INTEGER NOT NULL REFERENCES sub_subdiagnosis(id) ON DELETE CASCADE,
+        key                  VARCHAR(100) NOT NULL,
+        name                 VARCHAR(255) NOT NULL,
+        UNIQUE(sub_subdiagnosis_id, key)
+      );
+    `);
+
+    // Tablas globales de opciones fijas
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS image_quality (
+        id   SERIAL PRIMARY KEY,
+        name VARCHAR(50) UNIQUE NOT NULL
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS final_diagnosis (
+        id   SERIAL PRIMARY KEY,
+        name VARCHAR(50) UNIQUE NOT NULL
+      );
+    `);
+
+
+    // Tabla de interacciones por clip (estudiante ↔ profesor)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clip_interaction (
+      id                         SERIAL PRIMARY KEY,
+      clip_id                    INTEGER NOT NULL REFERENCES video_clip(id) ON DELETE CASCADE,
+      user_id                    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role                       VARCHAR(15) NOT NULL CHECK(role IN ('estudiante','profesor')),
+      protocol_key               VARCHAR(50),
+      window_id                  INTEGER,
+      finding_id                 INTEGER,
+      possible_diagnosis_id      INTEGER,
+      subdiagnosis_id            INTEGER,
+      sub_subdiagnosis_id        INTEGER,
+      third_order_diagnosis_id   INTEGER,
+      student_comment            TEXT,
+      student_ready              BOOLEAN,
+      image_quality_id           INTEGER REFERENCES image_quality(id),
+      final_diagnosis_id         INTEGER REFERENCES final_diagnosis(id),
+      professor_comment          TEXT,
+      created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
 
     logger.info("Base de datos inicializada correctamente");
     try {
       await seedTagHierarchy();
+      await seedProtocolHierarchy();
       await seedProtocols();
 
       logger.info("Seeds ejecutados correctamente");
