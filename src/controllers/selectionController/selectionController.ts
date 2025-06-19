@@ -4,7 +4,7 @@ import { pool } from "../../config/db";
 export const saveClipSelection: RequestHandler = async (req, res, next) => {
   try {
     const clipId = Number(req.params.clipId);
-    const userId = (req.user as { id: number }).id; 
+    const userId = (req.user as { id: number }).id;
     const {
       protocolId,
       windowId,
@@ -17,9 +17,9 @@ export const saveClipSelection: RequestHandler = async (req, res, next) => {
 
     const { rows } = await pool.query(
       `INSERT INTO clip_protocol_selection
-        (clip_id, user_id, protocol_id, window_id, finding_id,
-         possible_diagnosis_id, subdiagnosis_id, sub_subdiagnosis_id,
-         third_order_diagnosis_id)
+         (clip_id, user_id, protocol_id, window_id,
+          finding_id, possible_diagnosis_id, subdiagnosis_id,
+          sub_subdiagnosis_id, third_order_diagnosis_id)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
        ON CONFLICT (clip_id, user_id)
        DO UPDATE SET
@@ -43,9 +43,10 @@ export const saveClipSelection: RequestHandler = async (req, res, next) => {
         thirdOrderId || null,
       ]
     );
+
     res.status(201).json(rows[0]);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -63,7 +64,7 @@ export const getClipSelection: RequestHandler = async (req, res, next) => {
       return;
     }
     res.json(rows[0]);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };

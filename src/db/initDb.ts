@@ -338,28 +338,47 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
-    // Tabla de interacciones por clip (estudiante ↔ profesor)
+    // Tabla de selección de protocolo por video (solo una selección por estudiante por clip)
+    
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS clip_interaction (
+      CREATE TABLE IF NOT EXISTS clip_protocol_selection (
         id                         SERIAL PRIMARY KEY,
         clip_id                    INTEGER NOT NULL REFERENCES video_clip(id) ON DELETE CASCADE,
         user_id                    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        role                       VARCHAR(15) NOT NULL CHECK(role IN ('estudiante','profesor')),
-        protocol_key               VARCHAR(50),
-        window_id                  INTEGER,
-        finding_id                 INTEGER,
-        possible_diagnosis_id      INTEGER,
-        subdiagnosis_id            INTEGER,
-        sub_subdiagnosis_id        INTEGER,
-        third_order_diagnosis_id   INTEGER,
-        student_comment            TEXT,
-        student_ready              BOOLEAN,
-        image_quality_id           INTEGER REFERENCES image_quality(id),
-        final_diagnosis_id         INTEGER REFERENCES final_diagnosis(id),
-        professor_comment          TEXT,
-        created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+        protocol_id                INTEGER NOT NULL REFERENCES protocol(id),
+        window_id                  INTEGER NOT NULL REFERENCES protocol_window(id),
+        finding_id                 INTEGER NOT NULL REFERENCES finding(id),
+        possible_diagnosis_id      INTEGER NOT NULL REFERENCES possible_diagnosis(id),
+        subdiagnosis_id            INTEGER REFERENCES subdiagnosis(id),
+        sub_subdiagnosis_id        INTEGER REFERENCES sub_subdiagnosis(id),
+        third_order_diagnosis_id   INTEGER REFERENCES third_order_diagnosis(id),
+        created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (clip_id, user_id)
       );
     `);
+
+    // Tabla de interacciones por clip (estudiante ↔ profesor)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clip_interaction (
+      id                         SERIAL PRIMARY KEY,
+      clip_id                    INTEGER NOT NULL REFERENCES video_clip(id) ON DELETE CASCADE,
+      user_id                    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role                       VARCHAR(15) NOT NULL CHECK(role IN ('estudiante','profesor')),
+      protocol_key               VARCHAR(50),
+      window_id                  INTEGER,
+      finding_id                 INTEGER,
+      possible_diagnosis_id      INTEGER,
+      subdiagnosis_id            INTEGER,
+      sub_subdiagnosis_id        INTEGER,
+      third_order_diagnosis_id   INTEGER,
+      student_comment            TEXT,
+      student_ready              BOOLEAN,
+      image_quality_id           INTEGER REFERENCES image_quality(id),
+      final_diagnosis_id         INTEGER REFERENCES final_diagnosis(id),
+      professor_comment          TEXT,
+      created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
 
     logger.info("Base de datos inicializada correctamente");
     try {
