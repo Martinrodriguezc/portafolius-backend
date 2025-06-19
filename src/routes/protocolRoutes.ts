@@ -14,10 +14,6 @@ import { getSubSubdiagnosesBySubdiagnosis } from '../controllers/protocolControl
 import { getThirdOrderBySubSub } from '../controllers/protocolController/getThirdOrder';
 import { getImageQualities } from '../controllers/protocolController/getImageQualities';
 import { getFinalDiagnoses } from '../controllers/protocolController/getFinalDiagnoses';
-import {
-  saveClipSelection,
-  getClipSelection
-} from '../controllers/selectionController';
 
 const router = Router();
 
@@ -26,9 +22,6 @@ router.post('/', createProtocol);
 
 router.get('/image-qualities', getImageQualities);
 router.get('/final-diagnoses', getFinalDiagnoses);
-
-router.post('/video/:clipId/selection', saveClipSelection);
-router.get('/video/:clipId/selection', getClipSelection);
 
 router.get('/:key', getProtocol);
 

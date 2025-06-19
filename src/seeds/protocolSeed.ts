@@ -77,12 +77,6 @@ const PROTOCOLS: ProtocolDef[] = [
       },
     ]
   },
-  // Los demás heredan CARDIACO
-  //{ key: "fate", name: "FATE", sections: CARDIACO_SECTIONS },
-  //{ key: "fast", name: "FAST", sections: CARDIACO_SECTIONS },
-  //{ key: "rush", name: "RUSH", sections: CARDIACO_SECTIONS },
-  //{ key: "blue", name: "BLUE", sections: CARDIACO_SECTIONS },
-  //{ key: "focus", name: "FOCUS", sections: CARDIACO_SECTIONS },
 ];
 
 export const seedProtocols = async (): Promise<void> => {
