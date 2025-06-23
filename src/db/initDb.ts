@@ -362,6 +362,11 @@ export const initializeDatabase = async (): Promise<void> => {
     );
   `);
 
+  await pool.query(`
+    ALTER TABLE evaluation_form
+    ADD CONSTRAINT uq_evaluation_form_study UNIQUE (study_id);
+  `);
+
     logger.info("Base de datos inicializada correctamente");
     try {
       await seedTagHierarchy();
