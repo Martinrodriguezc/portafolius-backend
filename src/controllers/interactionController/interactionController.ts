@@ -46,19 +46,41 @@ export const createStudentInteraction: RequestHandler = async (req, res, next) =
 };
 
 export const createProfessorInteraction: RequestHandler = async (req, res, next) => {
-  try {
-    const { clipId } = req.params;
-    const { userId, imageQualityId, finalDiagnosisId, professorComment } = req.body;
+  // 1) extraemos el teacherId inyectado por authenticateToken en req.user
+  const teacherId = (req as any).user.id as number;
+  const clipId = Number(req.params.clipId);
 
-    await pool.query(
-      `INSERT INTO clip_interaction (
+  // 2) destructuramos del body sólo lo que necesitamos
+  const { imageQualityId, finalDiagnosisId, professorComment } = req.body;
+
+  try {
+    // 3) insert/update en la tabla
+    const { rows } = await pool.query(
+      `
+      INSERT INTO clip_interaction (
         clip_id, user_id, role,
-        image_quality_id, final_diagnosis_id, professor_comment
-      ) VALUES ($1,$2,'profesor',$3,$4,$5)`,
-      [clipId, userId, imageQualityId, finalDiagnosisId, professorComment]
+        image_quality_id, final_diagnosis_id, professor_comment, created_at
+      )
+      VALUES ($1, $2, 'profesor', $3, $4, $5, CURRENT_TIMESTAMP)
+      ON CONFLICT (clip_id, role) DO UPDATE
+        SET
+          image_quality_id   = EXCLUDED.image_quality_id,
+          final_diagnosis_id = EXCLUDED.final_diagnosis_id,
+          professor_comment  = EXCLUDED.professor_comment,
+          created_at         = CURRENT_TIMESTAMP
+      RETURNING *;
+      `,
+      [
+        clipId,
+        teacherId,
+        imageQualityId ?? null,
+        finalDiagnosisId ?? null,
+        professorComment ?? null,
+      ]
     );
 
-    res.status(201).json({ message: 'Revisión de profesor registrada.' });
+    // 4) devolvemos al cliente la fila creada/actualizada
+    res.status(200).json(rows[0]);
   } catch (err) {
     next(err);
   }
