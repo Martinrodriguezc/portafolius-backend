@@ -64,6 +64,19 @@ export const createProfessorInteraction: RequestHandler = async (req, res, next)
     isReady
   } = req.body;
 
+  // Normalize incoming values to ensure foreign key constraints are not violated
+  const pk = protocolKey ?? null;
+  const win = windowId ?? null;
+  const find = findingId ?? null;
+  const pd = diagnosisId ?? null;               // possible_diagnosis_id
+  const sd = subdiagnosisId ?? null;
+  const ssd = subSubId ?? null;
+  const tod = thirdOrderId ?? null;
+  const imgQ = Number.isInteger(imageQualityId) ? imageQualityId : null;
+  const finalD = Number.isInteger(finalDiagnosisId) ? finalDiagnosisId : null;
+  const ready = typeof isReady === 'boolean' ? isReady : null;
+  const profComm = professorComment ?? null;
+
   try {
     const { rows } = await pool.query(
       `
@@ -97,17 +110,17 @@ export const createProfessorInteraction: RequestHandler = async (req, res, next)
       [
         clipId,
         teacherId,
-        protocolKey ?? null,
-        windowId ?? null,
-        findingId ?? null,
-        diagnosisId ?? null,      // ojo: diagnosisId === possible_diagnosis_id en la tabla
-        subdiagnosisId ?? null,
-        subSubId ?? null,         // subSubId === sub_subdiagnosis_id
-        thirdOrderId ?? null,     // thirdOrderId === third_order_diagnosis_id
-        imageQualityId ?? null,
-        finalDiagnosisId ?? null,
-        professorComment ?? null,
-        isReady ?? null           // se guarda en student_ready (si quieres un campo solo de profesor, cámbialo)
+        pk,
+        win,
+        find,
+        pd,
+        sd,
+        ssd,
+        tod,
+        imgQ,
+        finalD,
+        profComm,
+        ready
       ]
     );
 
