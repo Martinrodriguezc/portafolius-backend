@@ -46,40 +46,71 @@ export const createStudentInteraction: RequestHandler = async (req, res, next) =
 };
 
 export const createProfessorInteraction: RequestHandler = async (req, res, next) => {
-  // 1) extraemos el teacherId inyectado por authenticateToken en req.user
   const teacherId = (req as any).user.id as number;
   const clipId = Number(req.params.clipId);
 
-  // 2) destructuramos del body sólo lo que necesitamos
-  const { imageQualityId, finalDiagnosisId, professorComment } = req.body;
+  // Destructura los campos tal como llegan del front
+  const {
+    protocolKey,
+    windowId,
+    findingId,
+    diagnosisId,
+    subdiagnosisId,
+    subSubId,
+    thirdOrderId,
+    imageQualityId,
+    finalDiagnosisId,
+    professorComment,
+    isReady
+  } = req.body;
 
   try {
-    // 3) insert/update en la tabla
     const { rows } = await pool.query(
       `
       INSERT INTO clip_interaction (
         clip_id, user_id, role,
-        image_quality_id, final_diagnosis_id, professor_comment, created_at
+        protocol_key, window_id, finding_id, possible_diagnosis_id,
+        subdiagnosis_id, sub_subdiagnosis_id, third_order_diagnosis_id,
+        image_quality_id, final_diagnosis_id, professor_comment, student_ready, created_at
+      ) VALUES (
+        $1, $2, 'profesor',
+        $3, $4, $5, $6,
+        $7, $8, $9,
+        $10, $11, $12, $13, CURRENT_TIMESTAMP
       )
-      VALUES ($1, $2, 'profesor', $3, $4, $5, CURRENT_TIMESTAMP)
       ON CONFLICT (clip_id, role) DO UPDATE
         SET
-          image_quality_id   = EXCLUDED.image_quality_id,
+          protocol_key = EXCLUDED.protocol_key,
+          window_id = EXCLUDED.window_id,
+          finding_id = EXCLUDED.finding_id,
+          possible_diagnosis_id = EXCLUDED.possible_diagnosis_id,
+          subdiagnosis_id = EXCLUDED.subdiagnosis_id,
+          sub_subdiagnosis_id = EXCLUDED.sub_subdiagnosis_id,
+          third_order_diagnosis_id = EXCLUDED.third_order_diagnosis_id,
+          image_quality_id = EXCLUDED.image_quality_id,
           final_diagnosis_id = EXCLUDED.final_diagnosis_id,
-          professor_comment  = EXCLUDED.professor_comment,
-          created_at         = CURRENT_TIMESTAMP
+          professor_comment = EXCLUDED.professor_comment,
+          student_ready = EXCLUDED.student_ready,
+          created_at = CURRENT_TIMESTAMP
       RETURNING *;
       `,
       [
         clipId,
         teacherId,
+        protocolKey ?? null,
+        windowId ?? null,
+        findingId ?? null,
+        diagnosisId ?? null,      // ojo: diagnosisId === possible_diagnosis_id en la tabla
+        subdiagnosisId ?? null,
+        subSubId ?? null,         // subSubId === sub_subdiagnosis_id
+        thirdOrderId ?? null,     // thirdOrderId === third_order_diagnosis_id
         imageQualityId ?? null,
         finalDiagnosisId ?? null,
         professorComment ?? null,
+        isReady ?? null           // se guarda en student_ready (si quieres un campo solo de profesor, cámbialo)
       ]
     );
 
-    // 4) devolvemos al cliente la fila creada/actualizada
     res.status(200).json(rows[0]);
   } catch (err) {
     next(err);
