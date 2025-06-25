@@ -196,12 +196,6 @@ export const initializeDatabase = async (): Promise<void> => {
       ON material_assignment (student_id);
     `);
 
-    // 1) Modificamos evaluation_form para que pueda apuntar a un clip
-    await pool.query(`
-      ALTER TABLE evaluation_form
-      ADD COLUMN IF NOT EXISTS clip_id INTEGER REFERENCES video_clip(id);
-    `);
-
     // Creamos la tabla de protocolos
     await pool.query(`
       CREATE TABLE IF NOT EXISTS protocol (
@@ -338,6 +332,37 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
+    // — clip_interaction: crea la constraint solo si no existe aún —
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+            FROM pg_constraint
+           WHERE conname = 'uq_clip_interaction_clip_role'
+        ) THEN
+          ALTER TABLE clip_interaction
+            ADD CONSTRAINT uq_clip_interaction_clip_role UNIQUE (clip_id, role);
+        END IF;
+      END
+      $$;
+    `);
+
+    // — evaluation_form: idem —
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+            FROM pg_constraint
+           WHERE conname = 'uq_evaluation_form_study'
+        ) THEN
+          ALTER TABLE evaluation_form
+            ADD CONSTRAINT uq_evaluation_form_study UNIQUE (study_id);
+        END IF;
+      END
+      $$;
+    `);
 
     // Tabla de interacciones por clip (estudiante ↔ profesor)
   await pool.query(`
@@ -361,6 +386,8 @@ export const initializeDatabase = async (): Promise<void> => {
       created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  
 
     logger.info("Base de datos inicializada correctamente");
     try {

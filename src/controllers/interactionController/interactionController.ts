@@ -46,19 +46,85 @@ export const createStudentInteraction: RequestHandler = async (req, res, next) =
 };
 
 export const createProfessorInteraction: RequestHandler = async (req, res, next) => {
-  try {
-    const { clipId } = req.params;
-    const { userId, imageQualityId, finalDiagnosisId, professorComment } = req.body;
+  const teacherId = (req as any).user.id as number;
+  const clipId = Number(req.params.clipId);
 
-    await pool.query(
-      `INSERT INTO clip_interaction (
+  // Destructura los campos tal como llegan del front
+  const {
+    protocolKey,
+    windowId,
+    findingId,
+    diagnosisId,
+    subdiagnosisId,
+    subSubId,
+    thirdOrderId,
+    imageQualityId,
+    finalDiagnosisId,
+    professorComment,
+    isReady
+  } = req.body;
+
+  // Normalize incoming values to ensure foreign key constraints are not violated
+  const pk = protocolKey ?? null;
+  const win = windowId ?? null;
+  const find = findingId ?? null;
+  const pd = diagnosisId ?? null;               // possible_diagnosis_id
+  const sd = subdiagnosisId ?? null;
+  const ssd = subSubId ?? null;
+  const tod = thirdOrderId ?? null;
+  const imgQ = Number.isInteger(imageQualityId) ? imageQualityId : null;
+  const finalD = Number.isInteger(finalDiagnosisId) ? finalDiagnosisId : null;
+  const ready = typeof isReady === 'boolean' ? isReady : null;
+  const profComm = professorComment ?? null;
+
+  try {
+    const { rows } = await pool.query(
+      `
+      INSERT INTO clip_interaction (
         clip_id, user_id, role,
-        image_quality_id, final_diagnosis_id, professor_comment
-      ) VALUES ($1,$2,'profesor',$3,$4,$5)`,
-      [clipId, userId, imageQualityId, finalDiagnosisId, professorComment]
+        protocol_key, window_id, finding_id, possible_diagnosis_id,
+        subdiagnosis_id, sub_subdiagnosis_id, third_order_diagnosis_id,
+        image_quality_id, final_diagnosis_id, professor_comment, student_ready, created_at
+      ) VALUES (
+        $1, $2, 'profesor',
+        $3, $4, $5, $6,
+        $7, $8, $9,
+        $10, $11, $12, $13, CURRENT_TIMESTAMP
+      )
+      ON CONFLICT (clip_id, role) DO UPDATE
+        SET
+          protocol_key = EXCLUDED.protocol_key,
+          window_id = EXCLUDED.window_id,
+          finding_id = EXCLUDED.finding_id,
+          possible_diagnosis_id = EXCLUDED.possible_diagnosis_id,
+          subdiagnosis_id = EXCLUDED.subdiagnosis_id,
+          sub_subdiagnosis_id = EXCLUDED.sub_subdiagnosis_id,
+          third_order_diagnosis_id = EXCLUDED.third_order_diagnosis_id,
+          image_quality_id = EXCLUDED.image_quality_id,
+          final_diagnosis_id = EXCLUDED.final_diagnosis_id,
+          professor_comment = EXCLUDED.professor_comment,
+          student_ready = EXCLUDED.student_ready,
+          created_at = CURRENT_TIMESTAMP
+      RETURNING *;
+      `,
+      [
+        clipId,
+        teacherId,
+        pk,
+        win,
+        find,
+        pd,
+        sd,
+        ssd,
+        tod,
+        imgQ,
+        finalD,
+        profComm,
+        ready
+      ]
     );
 
-    res.status(201).json({ message: 'Revisión de profesor registrada.' });
+    res.status(200).json(rows[0]);
   } catch (err) {
     next(err);
   }
