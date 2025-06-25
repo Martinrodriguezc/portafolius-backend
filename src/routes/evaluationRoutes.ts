@@ -17,6 +17,9 @@ import {
 // Última evaluación por estudio
 import { getEvaluationByStudy } from "../controllers/evaluationController/getEvaluationByStudy";
 
+// Listar evaluaciones por estudiante
+import { listEvaluationsByStudent } from "../controllers/evaluationController/listEvaluationsByStudent";
+
 const router = Router();
 
 // Todas estas rutas requieren token
@@ -39,6 +42,9 @@ router.post("/diagnosis/:videoId", saveDiagnosis);
 
 // Traer la última evaluación de un estudio
 router.get("/by-study/:studyId", getEvaluationByStudy);
+
+// Listar evaluaciones por estudiante
+router.get("/by-student", listEvaluationsByStudent);
 
 export default router;
 

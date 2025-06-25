@@ -260,7 +260,17 @@ export const initializeDatabase = async (): Promise<void> => {
       ADD COLUMN IF NOT EXISTS comment TEXT;
     `);
 
-    
+    // Tabla para diagnósticos de video por estudiantes
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS video_diagnosis (
+        id SERIAL PRIMARY KEY,
+        video_id INTEGER NOT NULL REFERENCES video_clip(id),
+        student_id INTEGER NOT NULL REFERENCES users(id),
+        diagnosis TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(video_id, student_id)
+      );
+    `);
 
     logger.info("Base de datos inicializada correctamente");
     try {

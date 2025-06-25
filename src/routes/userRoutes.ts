@@ -5,8 +5,12 @@ import {
   updateUser,
   deleteUser,
 } from "../controllers/userController";
+import { authenticateToken } from "../middleware/authenticateToken";
 
 const router = Router();
+
+// Todas las rutas de usuarios requieren autenticación
+router.use(authenticateToken);
 
 router.get("/", getUsers);
 router.get("/:id", getUserById);

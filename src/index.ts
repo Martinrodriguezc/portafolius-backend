@@ -28,7 +28,30 @@ const NODE_ENV = config.NODE_ENV;
 
 //REVISAR
 const corsOptions = {
-  origin: config.ALLOWED_ORIGINS,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    const allowedOrigins = config.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [];
+    
+    // En desarrollo o test, permitir requests sin origen (para tests con supertest)
+    if (NODE_ENV === 'development' || NODE_ENV === 'test') {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+    }
+    
+    // Verificar si el origen está en la lista de permitidos
+    if (origin && allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else if (!origin && NODE_ENV === 'production') {
+      // Solo rechazar requests sin origen en producción por seguridad
+      callback(new Error('Origen no especificado'), false);
+    } else if (!origin) {
+      // Permitir en desarrollo/test
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'), false);
+    }
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
