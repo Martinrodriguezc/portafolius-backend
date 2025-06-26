@@ -2,6 +2,7 @@ import request from 'supertest';
 import { pool } from '../../../src/config/db';
 import jwt from 'jsonwebtoken';
 import { config } from '../../../src/config';
+import { createUniqueTestData } from '../../setup';
 
 const baseURL = process.env.TEST_BASE_URL || 'http://localhost:3000';
 
@@ -15,14 +16,14 @@ describe('MetricsController - Tests de Integración', () => {
   let protocolId: number;
 
   beforeAll(async () => {
-    const timestamp = Date.now();
+    const testData = createUniqueTestData();
     
     // Crear usuario profesor
     const teacherResult = await pool.query(
       `INSERT INTO users (email, password, first_name, last_name, role)
        VALUES ($1, '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Test', 'Teacher', 'profesor')
        RETURNING id`,
-      [`test-teacher-${timestamp}@example.com`]
+      [`test-teacher-${testData.timestamp}-${testData.random}@example.com`]
     );
     teacherId = teacherResult.rows[0].id;
 
@@ -31,13 +32,13 @@ describe('MetricsController - Tests de Integración', () => {
       `INSERT INTO users (email, password, first_name, last_name, role)
        VALUES ($1, '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Test', 'Student', 'estudiante')
        RETURNING id`,
-      [`test-student-${timestamp}@example.com`]
+      [`test-student-${testData.timestamp}-${testData.random}@example.com`]
     );
     studentId = studentResult.rows[0].id;
 
     // Generar token JWT para profesor
     teacherToken = jwt.sign(
-      { id: teacherId, email: `test-teacher-${timestamp}@example.com`, role: 'profesor' },
+      { id: teacherId, email: `test-teacher-${testData.timestamp}-${testData.random}@example.com`, role: 'profesor' },
       config.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -47,7 +48,7 @@ describe('MetricsController - Tests de Integración', () => {
       `INSERT INTO study (student_id, title, description, status)
        VALUES ($1, $2, 'Test Description', 'active')
        RETURNING id`,
-      [studentId, `Test Study - ${timestamp}`]
+      [studentId, `Test Study - ${testData.timestamp}-${testData.random}`]
     );
     studyId = studyResult.rows[0].id;
 
@@ -56,7 +57,7 @@ describe('MetricsController - Tests de Integración', () => {
       `INSERT INTO protocol (key, name)
        VALUES ($1, 'Test Protocol')
        RETURNING id`,
-      [`test_protocol_${timestamp}`]
+      [`test_protocol_${testData.timestamp}_${testData.random}`]
     );
     protocolId = protocolResult.rows[0].id;
 
@@ -65,7 +66,7 @@ describe('MetricsController - Tests de Integración', () => {
       `INSERT INTO video_clip (study_id, object_key, original_filename, mime_type, size_bytes, order_index, protocol)
        VALUES ($1, $2, 'test.mp4', 'video/mp4', 1000, 1, $3)
        RETURNING id`,
-      [studyId, `test-key-${timestamp}`, `test_protocol_${timestamp}`]
+      [studyId, `test-key-${testData.timestamp}-${testData.random}`, `test_protocol_${testData.timestamp}_${testData.random}`]
     );
     videoClipId = clipResult.rows[0].id;
 

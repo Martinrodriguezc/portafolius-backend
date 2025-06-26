@@ -639,7 +639,7 @@ describe('CreateEvaluation Controller - Tests Unitarios', () => {
       );
     });
   });
-});
+}); 
 
 // Tests adicionales para saveDiagnosis y getDiagnosedVideos
 describe('SaveDiagnosis Unit Tests', () => {
