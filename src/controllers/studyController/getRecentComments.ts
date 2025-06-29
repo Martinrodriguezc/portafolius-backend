@@ -5,7 +5,7 @@ export const getRecentComments = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { userId } = req.params;
+  const { id } = req.params;
   try {
     const result = await pool.query(
       `SELECT
@@ -23,7 +23,7 @@ export const getRecentComments = async (
          AND cc.user_id   != $1
        ORDER BY cc.timestamp DESC
        LIMIT 50`,
-      [userId]
+      [id]
     );
     res.json({ comments: result.rows });
   } catch (err) {
