@@ -16,6 +16,7 @@ export const initializeDatabase = async (): Promise<void> => {
         first_name VARCHAR(100) NOT NULL,
         last_name VARCHAR(100) NOT NULL,
         role VARCHAR(15) NOT NULL CHECK (role IN ('google_login', 'profesor', 'estudiante', 'admin')),
+        autorizado BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -191,6 +192,19 @@ export const initializeDatabase = async (): Promise<void> => {
       CREATE INDEX IF NOT EXISTS idx_material_student
       ON material (student_id, type);
     `);
+
+    // Crear tabla de relación entre profesores y alumnos
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS teacher_student (
+        id SERIAL PRIMARY KEY,
+        teacher_id INTEGER NOT NULL REFERENCES users(id),
+        student_id INTEGER NOT NULL REFERENCES users(id),
+        assigned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(teacher_id, student_id)
+      );
+    `);
+    
+
     // Después de crear material_assignment…
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_material_assignment_student

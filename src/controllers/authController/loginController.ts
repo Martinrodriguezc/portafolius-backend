@@ -32,9 +32,17 @@ export const login = async (
     const user = result.rows[0];
 
     const passwordMatch = await bcrypt.compare(password, user.password);
+    // Registrar la contraseña proporcionada en el log para depuración
+    logger.info(`Contraseña proporcionada para el usuario ${email}: ${user.password}`);
     if (!passwordMatch) {
       logger.warn(`Contraseña incorrecta para email: ${email}`);
       res.status(401).json({ msg: "Contraseña incorrecta" });
+      return;
+    }
+
+    if (user.role === 'profesor' && !user.autorizado) {
+      logger.warn(`Profesor no autorizado para email: ${email}`);
+      res.status(403).json({ msg: "Tu cuenta aún no ha sido autorizada por el administrador." });
       return;
     }
 

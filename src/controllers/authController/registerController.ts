@@ -34,13 +34,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const autorizado = role !== "profesor"; // Solo los profesores tienen autorizado=false inicialmente
+
     const newUser = await pool.query(
       `INSERT INTO users
-          (first_name, last_name, email, role, password)
+          (first_name, last_name, email, role, password, autorizado)
        VALUES
-          ($1,          $2,        $3,    $4,   $5)
-       RETURNING id, email, first_name, last_name, role, created_at`,
-      [firstName, lastName, email, role, hashedPassword]
+          ($1,          $2,        $3,    $4,   $5,       $6)
+       RETURNING id, email, first_name, last_name, role, autorizado, created_at`,
+      [firstName, lastName, email, role, hashedPassword, autorizado]
     );
 
     logger.info(`Usuario registrado correctamente: ${email}`);
