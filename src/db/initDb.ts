@@ -3,6 +3,7 @@ import logger from "../config/logger";
 import { seedTagHierarchy } from "../seeds/tagSeed";
 import { seedProtocols }    from "../seeds/protocolSeed";
 import { seedProtocolHierarchy } from "../seeds/protocolsConfigSeed";
+import { seedUsers } from "../seeds/userSeed";
 
 export const initializeDatabase = async (): Promise<void> => {
   try {
@@ -394,6 +395,7 @@ export const initializeDatabase = async (): Promise<void> => {
       await seedTagHierarchy();
       await seedProtocolHierarchy();
       await seedProtocols();
+      await seedUsers();
 
       logger.info("Seeds ejecutados correctamente");
     } catch (seedError) {
