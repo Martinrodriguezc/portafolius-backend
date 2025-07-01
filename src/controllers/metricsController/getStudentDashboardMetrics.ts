@@ -52,7 +52,7 @@ export const getStudentDashboardMetrics: RequestHandler<{ id: string }> = async 
       JOIN video_clip vc ON cc.clip_id = vc.id
       JOIN study s ON vc.study_id = s.id
       WHERE s.student_id = $1
-        AND cc.user_id IN (SELECT id FROM users WHERE role = 'profesor')
+        AND cc.user_id IN (SELECT id FROM users WHERE role IN ('profesor', 'admin'))
       GROUP BY 1
       ORDER BY 1
     `, [studentId])

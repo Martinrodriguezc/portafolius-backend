@@ -14,6 +14,7 @@ export const getAssignments = async (
         ts.student_id,
         t.first_name as teacher_first_name,
         t.last_name as teacher_last_name,
+        t.role as teacher_role,
         s.first_name as student_first_name,
         s.last_name as student_last_name,
         ts.assigned_at
@@ -29,7 +30,9 @@ export const getAssignments = async (
         id: row.teacher_id,
         firstName: row.teacher_first_name,
         lastName: row.teacher_last_name,
-        fullName: `${row.teacher_first_name} ${row.teacher_last_name}`
+        fullName: `${row.teacher_first_name} ${row.teacher_last_name}`,
+        role: row.teacher_role,
+        roleText: row.teacher_role === 'admin' ? 'Administrador' : 'Profesor'
       },
       student: {
         id: row.student_id,
@@ -41,11 +44,11 @@ export const getAssignments = async (
     }));
 
     
-    logger.info("Lista de asignaciones profesor-estudiante obtenida exitosamente");
+    logger.info("Lista de asignaciones instructor-estudiante obtenida exitosamente");
     res.status(200).json({ assignments });
 
   } catch (error) {
-    logger.error("Error al obtener las asignaciones profesor-estudiante:", error);
-    res.status(500).json({ msg: "Error al obtener las asignaciones profesor-estudiante" });
+    logger.error("Error al obtener las asignaciones instructor-estudiante:", error);
+    res.status(500).json({ msg: "Error al obtener las asignaciones instructor-estudiante" });
   }
 }; 

@@ -42,7 +42,7 @@ export const login = async (
 
     if (user.role === 'profesor' && !user.autorizado) {
       logger.warn(`Profesor no autorizado para email: ${email}`);
-      res.status(403).json({ msg: "Tu cuenta aún no ha sido autorizada por el administrador." });
+      res.status(200).json({ msg: "Tu cuenta aún no ha sido autorizada por el administrador." });
       return;
     }
 

@@ -9,7 +9,7 @@ export const assignTeacherToStudent = async (
   const { teacherEmail, studentEmail } = req.body;
 
   if (!teacherEmail || !studentEmail) {
-    res.status(400).json({ msg: "Se requieren los correos del profesor y del estudiante" });
+    res.status(400).json({ msg: "Se requieren los correos del instructor y del estudiante" });
     return;
   }
 
@@ -30,8 +30,8 @@ export const assignTeacherToStudent = async (
     const teacher = usersResult.rows.find(user => user.email === teacherEmail);
     const student = usersResult.rows.find(user => user.email === studentEmail);
 
-    if (!teacher || teacher.role !== 'profesor') {
-      res.status(400).json({ msg: "El correo proporcionado no corresponde a un profesor" });
+    if (!teacher || (teacher.role !== 'profesor' && teacher.role !== 'admin')) {
+      res.status(400).json({ msg: "El correo proporcionado no corresponde a un profesor o administrador" });
       return;
     }
 
@@ -40,9 +40,9 @@ export const assignTeacherToStudent = async (
       return;
     }
 
-    // Verificar si el estudiante ya tiene un profesor asignado
+    // Verificar si el estudiante ya tiene un instructor asignado
     const existingAssignment = await pool.query(
-      `SELECT teacher_id, t.email as teacher_email
+      `SELECT teacher_id, t.email as teacher_email, t.role as teacher_role
        FROM teacher_student ts
        JOIN users t ON t.id = ts.teacher_id
        WHERE student_id = $1`,
@@ -58,12 +58,16 @@ export const assignTeacherToStudent = async (
         [teacher.id, student.id]
       );
 
-      logger.info(`Actualizada asignación: estudiante ${studentEmail} reasignado del profesor ${existingAssignment.rows[0].teacher_email} al profesor ${teacherEmail}`);
+      const previousRole = existingAssignment.rows[0].teacher_role === 'admin' ? 'administrador' : 'profesor';
+      const newRole = teacher.role === 'admin' ? 'administrador' : 'profesor';
+      
+      logger.info(`Actualizada asignación: estudiante ${studentEmail} reasignado del ${previousRole} ${existingAssignment.rows[0].teacher_email} al ${newRole} ${teacherEmail}`);
       res.status(200).json({ 
         msg: "Asignación actualizada exitosamente",
         teacherId: teacher.id,
         studentId: student.id,
-        previousTeacherEmail: existingAssignment.rows[0].teacher_email
+        previousTeacherEmail: existingAssignment.rows[0].teacher_email,
+        instructorRole: teacher.role
       });
     } else {
       // Crear nueva asignación
@@ -73,16 +77,18 @@ export const assignTeacherToStudent = async (
         [teacher.id, student.id]
       );
 
-      logger.info(`Nueva asignación: Profesor ${teacherEmail} asignado al estudiante ${studentEmail}`);
+      const roleText = teacher.role === 'admin' ? 'Administrador' : 'Profesor';
+      logger.info(`Nueva asignación: ${roleText} ${teacherEmail} asignado al estudiante ${studentEmail}`);
       res.status(201).json({ 
-        msg: "Profesor asignado exitosamente al estudiante",
+        msg: `${roleText} asignado exitosamente al estudiante`,
         teacherId: teacher.id,
-        studentId: student.id
+        studentId: student.id,
+        instructorRole: teacher.role
       });
     }
 
   } catch (error) {
-    logger.error("Error al asignar profesor a estudiante:", error);
-    res.status(500).json({ msg: "Error al asignar profesor a estudiante" });
+    logger.error("Error al asignar instructor a estudiante:", error);
+    res.status(500).json({ msg: "Error al asignar instructor a estudiante" });
   }
 }; 

@@ -347,6 +347,29 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
+    // Tabla de interacciones por clip (estudiante ↔ profesor)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clip_interaction (
+      id                         SERIAL PRIMARY KEY,
+      clip_id                    INTEGER NOT NULL REFERENCES video_clip(id) ON DELETE CASCADE,
+      user_id                    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role                       VARCHAR(15) NOT NULL CHECK(role IN ('estudiante','profesor')),
+      protocol_key               VARCHAR(50),
+      window_id                  INTEGER,
+      finding_id                 INTEGER,
+      possible_diagnosis_id      INTEGER,
+      subdiagnosis_id            INTEGER,
+      sub_subdiagnosis_id        INTEGER,
+      third_order_diagnosis_id   INTEGER,
+      student_comment            TEXT,
+      student_ready              BOOLEAN,
+      image_quality_id           INTEGER REFERENCES image_quality(id),
+      final_diagnosis_id         INTEGER REFERENCES final_diagnosis(id),
+      professor_comment          TEXT,
+      created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
     // — clip_interaction: crea la constraint solo si no existe aún —
     await pool.query(`
       DO $$
@@ -378,31 +401,6 @@ export const initializeDatabase = async (): Promise<void> => {
       END
       $$;
     `);
-
-    // Tabla de interacciones por clip (estudiante ↔ profesor)
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS clip_interaction (
-      id                         SERIAL PRIMARY KEY,
-      clip_id                    INTEGER NOT NULL REFERENCES video_clip(id) ON DELETE CASCADE,
-      user_id                    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      role                       VARCHAR(15) NOT NULL CHECK(role IN ('estudiante','profesor')),
-      protocol_key               VARCHAR(50),
-      window_id                  INTEGER,
-      finding_id                 INTEGER,
-      possible_diagnosis_id      INTEGER,
-      subdiagnosis_id            INTEGER,
-      sub_subdiagnosis_id        INTEGER,
-      third_order_diagnosis_id   INTEGER,
-      student_comment            TEXT,
-      student_ready              BOOLEAN,
-      image_quality_id           INTEGER REFERENCES image_quality(id),
-      final_diagnosis_id         INTEGER REFERENCES final_diagnosis(id),
-      professor_comment          TEXT,
-      created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
-
-  
 
     logger.info("Base de datos inicializada correctamente");
     try {
