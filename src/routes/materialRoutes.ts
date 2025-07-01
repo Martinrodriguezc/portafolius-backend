@@ -37,10 +37,10 @@ router.get("/student/:id",  getStudentMaterials);
 
 // Nuevas rutas para profesores y administradores
 router.get("/all", authTeacherAdminMiddleware, getAllMaterials);
-router.post("/", authTeacherAdminMiddleware, uploadMaterial);
+router.post("/upload-url", authTeacherAdminMiddleware, uploadMaterial);
 router.put("/:id", authTeacherAdminMiddleware, updateMaterial);
 router.delete("/:id", authTeacherAdminMiddleware, deleteMaterial);
-router.post("/",            authenticateToken, upload.single("file"), createMaterial);
+router.post("/",          authTeacherAdminMiddleware, upload.single("file"), createMaterial);
 router.get("/:id/assignments", getMaterialAssignments);
 router.get("/download/:id", downloadMaterial);
 

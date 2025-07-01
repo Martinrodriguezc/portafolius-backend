@@ -3,16 +3,19 @@ import { pool } from "../../config/db";
 import logger from "../../config/logger";
 import { AuthenticatedRequest } from "../../middleware/authenticateToken";
 
-/**
- * Sube un nuevo material al sistema
- * El material puede ser global (student_id = null) o asignado a un estudiante específico
- */
+
 export async function uploadMaterial(
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
+    logger.info('Iniciando uploadMaterial', { 
+      userId: req.user?.id, 
+      userRole: req.user?.role,
+      body: req.body 
+    });
+
     const { 
       title, 
       description, 
@@ -23,8 +26,19 @@ export async function uploadMaterial(
       student_id 
     } = req.body;
 
+    logger.info('Datos extraídos del body', { 
+      title, 
+      description, 
+      url, 
+      type, 
+      size_bytes, 
+      mime_type,
+      student_id 
+    });
+
     // Validar que el tipo sea válido
     if (!['document', 'video', 'link'].includes(type)) {
+      logger.warn('Tipo de material inválido', { type });
       res.status(400).json({
         success: false,
         message: "El tipo de material debe ser 'document', 'video' o 'link'"
