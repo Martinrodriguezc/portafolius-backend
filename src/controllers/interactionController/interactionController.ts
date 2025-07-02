@@ -4,8 +4,8 @@ import { pool } from '../../config/db';
 export const createStudentInteraction: RequestHandler = async (req, res, next) => {
   try {
     const { clipId } = req.params;
+    const userId = (req as any).user.id as number;
     const {
-      userId,
       protocolKey,
       windowId,
       findingId,
