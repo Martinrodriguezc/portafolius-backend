@@ -3,6 +3,7 @@ import logger from "../config/logger";
 import { seedTagHierarchy } from "../seeds/tagSeed";
 import { seedProtocols }    from "../seeds/protocolSeed";
 import { seedProtocolHierarchy } from "../seeds/protocolsConfigSeed";
+import { seedUsers } from "../seeds/userSeed";
 
 export const initializeDatabase = async (): Promise<void> => {
   try {
@@ -15,6 +16,7 @@ export const initializeDatabase = async (): Promise<void> => {
         first_name VARCHAR(100) NOT NULL,
         last_name VARCHAR(100) NOT NULL,
         role VARCHAR(15) NOT NULL CHECK (role IN ('google_login', 'profesor', 'estudiante', 'admin')),
+        autorizado BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -190,6 +192,19 @@ export const initializeDatabase = async (): Promise<void> => {
       CREATE INDEX IF NOT EXISTS idx_material_student
       ON material (student_id, type);
     `);
+
+    // Crear tabla de relación entre profesores y alumnos
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS teacher_student (
+        id SERIAL PRIMARY KEY,
+        teacher_id INTEGER NOT NULL REFERENCES users(id),
+        student_id INTEGER NOT NULL REFERENCES users(id),
+        assigned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(teacher_id, student_id)
+      );
+    `);
+    
+
     // Después de crear material_assignment…
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_material_assignment_student
@@ -332,6 +347,29 @@ export const initializeDatabase = async (): Promise<void> => {
       );
     `);
 
+    // Tabla de interacciones por clip (estudiante ↔ profesor)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clip_interaction (
+      id                         SERIAL PRIMARY KEY,
+      clip_id                    INTEGER NOT NULL REFERENCES video_clip(id) ON DELETE CASCADE,
+      user_id                    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role                       VARCHAR(15) NOT NULL CHECK(role IN ('estudiante','profesor')),
+      protocol_key               VARCHAR(50),
+      window_id                  INTEGER,
+      finding_id                 INTEGER,
+      possible_diagnosis_id      INTEGER,
+      subdiagnosis_id            INTEGER,
+      sub_subdiagnosis_id        INTEGER,
+      third_order_diagnosis_id   INTEGER,
+      student_comment            TEXT,
+      student_ready              BOOLEAN,
+      image_quality_id           INTEGER REFERENCES image_quality(id),
+      final_diagnosis_id         INTEGER REFERENCES final_diagnosis(id),
+      professor_comment          TEXT,
+      created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
     // — clip_interaction: crea la constraint solo si no existe aún —
     await pool.query(`
       DO $$
@@ -364,36 +402,12 @@ export const initializeDatabase = async (): Promise<void> => {
       $$;
     `);
 
-    // Tabla de interacciones por clip (estudiante ↔ profesor)
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS clip_interaction (
-      id                         SERIAL PRIMARY KEY,
-      clip_id                    INTEGER NOT NULL REFERENCES video_clip(id) ON DELETE CASCADE,
-      user_id                    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      role                       VARCHAR(15) NOT NULL CHECK(role IN ('estudiante','profesor')),
-      protocol_key               VARCHAR(50),
-      window_id                  INTEGER,
-      finding_id                 INTEGER,
-      possible_diagnosis_id      INTEGER,
-      subdiagnosis_id            INTEGER,
-      sub_subdiagnosis_id        INTEGER,
-      third_order_diagnosis_id   INTEGER,
-      student_comment            TEXT,
-      student_ready              BOOLEAN,
-      image_quality_id           INTEGER REFERENCES image_quality(id),
-      final_diagnosis_id         INTEGER REFERENCES final_diagnosis(id),
-      professor_comment          TEXT,
-      created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
-
-  
-
     logger.info("Base de datos inicializada correctamente");
     try {
       await seedTagHierarchy();
       await seedProtocolHierarchy();
       await seedProtocols();
+      await seedUsers();
 
       logger.info("Seeds ejecutados correctamente");
     } catch (seedError) {
