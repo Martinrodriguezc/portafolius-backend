@@ -7,13 +7,11 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
   const { first_name, last_name, email } = req.body; 
 
   try {
-    // Validar que al menos un campo esté presente
     if (!first_name && !last_name && !email) {
       res.status(400).json({ msg: "Debe proporcionar al menos un campo para actualizar" });
       return;
     }
 
-    // Validar formato de email si se proporciona
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       res.status(400).json({ msg: "Formato de email inválido" });
       return;
