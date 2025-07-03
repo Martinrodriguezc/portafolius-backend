@@ -5,6 +5,7 @@ import {
   updateUser,
   deleteUser,
   createUserByAdmin,
+  updateUserByAdmin,
 } from "../controllers/userController";
 import { authenticateToken } from "../middleware/authenticateToken";
 
@@ -18,4 +19,6 @@ router.get("/:id", getUserById);
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
 router.post("/admin/create", createUserByAdmin);
+router.put("/admin/:id", updateUserByAdmin);
+
 export default router;

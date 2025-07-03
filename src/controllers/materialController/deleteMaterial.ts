@@ -13,6 +13,15 @@ export async function deleteMaterial(
   try {
     const materialId = parseInt(req.params.id);
 
+    // Validar que el materialId sea válido
+    if (isNaN(materialId)) {
+      res.status(400).json({
+        success: false,
+        message: "ID de material inválido"
+      });
+      return;
+    }
+
     // Verificar que el material existe
     const materialCheck = await pool.query(
       "SELECT * FROM material WHERE id = $1",
@@ -27,6 +36,12 @@ export async function deleteMaterial(
       return;
     }
 
+    // Eliminar primero las asignaciones del material
+    const assignmentDeleteResult = await pool.query(
+      "DELETE FROM material_assignment WHERE material_id = $1",
+      [materialId]
+    );
+
     // Eliminar el material
     await pool.query(
       "DELETE FROM material WHERE id = $1",
@@ -35,7 +50,10 @@ export async function deleteMaterial(
     
     res.status(200).json({
       success: true,
-      message: "Material eliminado exitosamente"
+      message: "Material eliminado exitosamente",
+      data: {
+        assignmentsDeleted: assignmentDeleteResult.rowCount || 0
+      }
     });
   } catch (error) {
     logger.error('Error al eliminar material', { error });
