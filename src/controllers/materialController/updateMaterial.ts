@@ -1,12 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import { pool } from "../../config/db";
 import logger from "../../config/logger";
+import { AuthenticatedRequest } from "../../middleware/authenticateToken";
 
 /**
  * Actualiza un material existente en el sistema
+ * Puede actualizar para un estudiante específico o para múltiples estudiantes
  */
 export async function updateMaterial(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> {
@@ -17,8 +19,18 @@ export async function updateMaterial(
       description, 
       url, 
       type, 
-      student_id 
+      student_id,
+      student_ids // Nuevo campo para múltiples estudiantes
     } = req.body;
+
+   
+    if (isNaN(materialId)) {
+      res.status(400).json({
+        success: false,
+        message: "ID de material inválido"
+      });
+      return;
+    }
 
     // Verificar que el material existe
     const materialCheck = await pool.query(
@@ -26,10 +38,21 @@ export async function updateMaterial(
       [materialId]
     );
 
+
+
     if (materialCheck.rowCount === 0) {
       res.status(404).json({
         success: false,
         message: "El material especificado no existe"
+      });
+      return;
+    }
+
+    // Validar que no se envíen ambos campos a la vez
+    if (student_id !== undefined && student_ids !== undefined) {
+      res.status(400).json({
+        success: false,
+        message: "No se puede especificar tanto student_id como student_ids al mismo tiempo"
       });
       return;
     }
@@ -43,7 +66,122 @@ export async function updateMaterial(
       return;
     }
 
-    // Si se proporciona un student_id, verificar que exista
+    // Manejar múltiples estudiantes
+    if (student_ids !== undefined) {
+      if (!Array.isArray(student_ids)) {
+        res.status(400).json({
+          success: false,
+          message: "student_ids debe ser un array"
+        });
+        return;
+      }
+
+      // Validar que todos los estudiantes existan
+      if (student_ids.length > 0) {
+        const studentCheck = await pool.query(
+          "SELECT id FROM users WHERE id = ANY($1) AND role = 'estudiante'",
+          [student_ids]
+        );
+
+        if (studentCheck.rowCount !== student_ids.length) {
+          const existingIds = studentCheck.rows.map(row => row.id);
+          const missingIds = student_ids.filter(id => !existingIds.includes(id));
+          
+          res.status(404).json({
+            success: false,
+            message: `Los siguientes estudiantes no existen: ${missingIds.join(', ')}`
+          });
+          return;
+        }
+      }
+
+      // Crear copias del material para cada estudiante
+      const results = [];
+      
+      for (const studentId of student_ids) {
+        // Construir la query de actualización dinámicamente
+        let updateFields = [];
+        let values = [];
+        let paramCount = 1;
+
+        if (title !== undefined) {
+          updateFields.push(`title = $${paramCount}`);
+          values.push(title);
+          paramCount++;
+        }
+
+        if (description !== undefined) {
+          updateFields.push(`description = $${paramCount}`);
+          values.push(description);
+          paramCount++;
+        }
+
+        if (url !== undefined) {
+          updateFields.push(`url = $${paramCount}`);
+          values.push(url);
+          paramCount++;
+        }
+
+        if (type !== undefined) {
+          updateFields.push(`type = $${paramCount}`);
+          values.push(type);
+          paramCount++;
+        }
+
+        // Siempre actualizar student_id para cada estudiante
+        updateFields.push(`student_id = $${paramCount}`);
+        values.push(studentId);
+        paramCount++;
+
+        if (updateFields.length === 1) { // Solo student_id
+          res.status(400).json({
+            success: false,
+            message: "No se proporcionaron campos para actualizar además de student_ids"
+          });
+          return;
+        }
+
+        // Primero obtener el material original
+        const originalMaterial = await pool.query(
+          "SELECT * FROM material WHERE id = $1",
+          [materialId]
+        );
+
+        const original = originalMaterial.rows[0];
+
+        // Crear una copia del material para este estudiante
+        const insertQuery = `
+          INSERT INTO material (
+            student_id, type, title, description, url, size_bytes, mime_type, created_by, uploaded_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, NOW()
+          ) RETURNING *
+        `;
+
+        const insertValues = [
+          studentId,
+          type !== undefined ? type : original.type,
+          title !== undefined ? title : original.title,
+          description !== undefined ? description : original.description,
+          url !== undefined ? url : original.url,
+          original.size_bytes,
+          original.mime_type,
+          original.created_by
+        ];
+
+        const { rows } = await pool.query(insertQuery, insertValues);
+        results.push(rows[0]);
+      }
+
+      res.status(200).json({
+        success: true,
+        message: `Material copiado exitosamente para ${student_ids.length} estudiantes`,
+        data: results
+      });
+      return;
+    }
+
+    // Lógica original para un solo estudiante
     if (student_id !== undefined) {
       if (student_id === null) {
         // Está bien, será un material global
@@ -67,6 +205,8 @@ export async function updateMaterial(
     let updateFields = [];
     let values = [];
     let paramCount = 1;
+
+
 
     if (title !== undefined) {
       updateFields.push(`title = $${paramCount}`);
@@ -107,7 +247,6 @@ export async function updateMaterial(
       return;
     }
 
-    // Añadir el ID del material al final de los valores
     values.push(materialId);
 
     const query = `

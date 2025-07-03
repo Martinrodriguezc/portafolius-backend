@@ -23,7 +23,8 @@ export async function uploadMaterial(
       type, 
       size_bytes, 
       mime_type,
-      student_id 
+      student_id,
+      studentIds // Nuevo campo para múltiples estudiantes
     } = req.body;
 
     logger.info('Datos extraídos del body', { 
@@ -33,7 +34,8 @@ export async function uploadMaterial(
       type, 
       size_bytes, 
       mime_type,
-      student_id 
+      student_id,
+      studentIds 
     });
 
     // Validar que el tipo sea válido
@@ -51,6 +53,79 @@ export async function uploadMaterial(
       res.status(400).json({
         success: false,
         message: "Los campos título, URL y tipo son obligatorios"
+      });
+      return;
+    }
+
+    // Validar que no se envíen ambos campos a la vez
+    if (student_id !== undefined && studentIds !== undefined) {
+      res.status(400).json({
+        success: false,
+        message: "No se puede especificar tanto student_id como studentIds al mismo tiempo"
+      });
+      return;
+    }
+
+    // Manejar múltiples estudiantes
+    if (studentIds !== undefined) {
+      if (!Array.isArray(studentIds)) {
+        res.status(400).json({
+          success: false,
+          message: "studentIds debe ser un array"
+        });
+        return;
+      }
+
+      // Validar que todos los estudiantes existan
+      if (studentIds.length > 0) {
+        const studentCheck = await pool.query(
+          "SELECT id FROM users WHERE id = ANY($1) AND role = 'estudiante'",
+          [studentIds]
+        );
+
+        if (studentCheck.rowCount !== studentIds.length) {
+          const existingIds = studentCheck.rows.map(row => row.id);
+          const missingIds = studentIds.filter(id => !existingIds.includes(id));
+          
+          res.status(404).json({
+            success: false,
+            message: `Los siguientes estudiantes no existen: ${missingIds.join(', ')}`
+          });
+          return;
+        }
+      }
+
+      // Crear materiales para cada estudiante
+      const results = [];
+      
+      for (const studentId of studentIds) {
+        const query = `
+          INSERT INTO material (
+            student_id, type, title, description, url, size_bytes, mime_type, created_by
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8
+          ) RETURNING *
+        `;
+
+        const values = [
+          studentId,
+          type,
+          title,
+          description || null,
+          url,
+          size_bytes || null,
+          mime_type || null,
+          req.user?.id
+        ];
+
+        const { rows } = await pool.query(query, values);
+        results.push(rows[0]);
+      }
+
+      res.status(201).json({
+        success: true,
+        message: `Material creado exitosamente para ${studentIds.length} estudiantes`,
+        data: results
       });
       return;
     }
@@ -74,9 +149,9 @@ export async function uploadMaterial(
     // Insertar el material en la base de datos
     const query = `
       INSERT INTO material (
-        student_id, type, title, description, url, size_bytes, mime_type
+        student_id, type, title, description, url, size_bytes, mime_type, created_by
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7
+        $1, $2, $3, $4, $5, $6, $7, $8
       ) RETURNING *
     `;
 
@@ -87,7 +162,8 @@ export async function uploadMaterial(
       description || null,
       url,
       size_bytes || null,
-      mime_type || null
+      mime_type || null,
+      req.user?.id
     ];
 
     const { rows } = await pool.query(query, values);
