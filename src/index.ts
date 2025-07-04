@@ -72,7 +72,7 @@ app.use(cors(corsOptions));
 if (NODE_ENV === "production") {
   app.use(helmet());
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
+    windowMs: 15 * 60 * 1000, 
     max: 100,                 // 100 peticiones por IP
     message: "Demasiadas peticiones. Por favor, inténtalo de nuevo más tarde.",
   });
