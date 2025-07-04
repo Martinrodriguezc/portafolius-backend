@@ -3,23 +3,7 @@ import bcrypt from "bcrypt";
 import { pool } from "../../config/db";
 import logger from "../../config/logger";
 import { AuthenticatedRequest } from "../../middleware/authenticateToken";
-
-export interface UserFormData {
-  first_name: string;
-  last_name: string;
-  email: string;
-  password: string;
-  role: string;
-}
-
-interface RequestPayload {
-  user: {
-    id: number;
-    email: string;
-    role: string;
-  };
-  newUser: UserFormData;
-}
+import { UserFormData, RequestPayload } from "../../types/user";
 
 export const createUserByAdmin = async (req: Request, res: Response): Promise<void> => {
   const payload = req.body as RequestPayload;
