@@ -1,3 +1,4 @@
+import { initializeDatabase } from "./db/initDb";
 import express, { Request, Response } from "express";
 import passport from "./config/passport";
 import cors from "cors";
@@ -16,9 +17,10 @@ import materialRoutes from "./routes/materialRoutes";
 import metricRoutes from "./routes/metricRoutes";
 import attemptRoutes   from "./routes/attemptRoutes";
 import responseRoutes  from "./routes/responseRoutes";
+import interactionRoutes from './routes/interactionRoutes';
+import adminRoutes from "./routes/adminRoutes";
 import { config } from "./config";
 import logger from "./config/logger";
-import { initializeDatabase } from "./db/initDb";
 
 dotenv.config();
 
@@ -27,14 +29,43 @@ const PORT = config.PORT || 3000;
 const NODE_ENV = config.NODE_ENV;
 
 //REVISAR
+const allowedOrigins = Array.isArray(config.ALLOWED_ORIGINS) 
+  ? config.ALLOWED_ORIGINS 
+  : config.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173'];
+
 const corsOptions = {
-  origin: config.ALLOWED_ORIGINS,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    const allowedOrigins = config.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [];
+    
+    // En desarrollo o test, permitir requests sin origen (para tests con supertest)
+    if (NODE_ENV === 'development' || NODE_ENV === 'test') {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+    }
+    
+    // Verificar si el origen está en la lista de permitidos
+    if (origin && allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else if (!origin && NODE_ENV === 'production') {
+      // Solo rechazar requests sin origen en producción por seguridad
+      callback(new Error('Origen no especificado'), false);
+    } else if (!origin) {
+      // Permitir en desarrollo/test
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'), false);
+    }
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
+console.log('Allowed Origins:', allowedOrigins);
+console.log('CORS configuration:', corsOptions);
 
 app.use(cors(corsOptions));
 
@@ -70,9 +101,11 @@ app.use("/study", studyRouter);
 app.use("/teacher", teacherRouter);
 app.use("/materials", materialRoutes);
 app.use("/metrics", metricRoutes);
+app.use("/interactions", interactionRoutes);
 
 app.use(attemptRoutes);
 app.use(responseRoutes);
+app.use("/admin", adminRoutes);
 
 const startServer = async () => {
   try {

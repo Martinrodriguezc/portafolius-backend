@@ -13,7 +13,7 @@ export const config = {
   PORT: process.env.PORT,
   DATABASE_URL: process.env.DATABASE_URL || '',
   JWT_SECRET: process.env.JWT_SECRET,
-  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'http://localhost:5173',
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
   S3_BUCKET: process.env.S3_BUCKET,
   AWS_REGION: process.env.AWS_REGION,

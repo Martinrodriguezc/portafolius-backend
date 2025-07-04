@@ -6,6 +6,7 @@ import { getAllTags } from "../controllers/videoController/getTags";
 import { getTagsUtils } from "../controllers/videoController/getTagsUtils";
 import { assignTagsToClip } from "../controllers/videoController/assignTagsToClip";
 import { getThumbnailDownloadUrl } from "../controllers/thumbnailController/getThumbnailDownloadUrl";
+import { checkVideoEvaluation, getVideoWithEvaluationDetails } from "../controllers/videoController/checkVideoEvaluation";
 
 const router = Router();
 
@@ -17,5 +18,8 @@ router.post("/:clipId/tags", assignTagsToClip);
 router.get("/tag_utils", getTagsUtils);
 router.post("/upload-callback", uploadCallback)
 router.get('/:videoId/thumbnail-download-url', getThumbnailDownloadUrl)
+
+router.get("/:clipId/evaluation/check", checkVideoEvaluation);
+router.get("/:clipId/evaluation/details", getVideoWithEvaluationDetails);
 
 export default router;

@@ -1,21 +1,47 @@
-import { Router } from "express";
-import { upload, createMaterial }   from "../controllers/materialController/createMaterial";
-import { getStudentMaterials }      from "../controllers/materialController/getStudentMaterials";
-import { getMaterialStats }         from "../controllers/materialController/getMaterialStats";
-import { getMaterialAssignments }   from "../controllers/materialController/getMaterialAssignments";
-import { downloadMaterial }         from "../controllers/materialController/downloadMaterial";
-
-import { authenticateToken } from "../middleware/authenticateToken";
+import { Router, Response, NextFunction } from "express";
+import { 
+  getStudentMaterials,
+  getAllMaterials,
+  uploadMaterial,
+  updateMaterial,
+  deleteMaterial
+} from "../controllers/materialController";
+import { getMaterialStats } from "../controllers/materialController/getMaterialStats";
+import { createMaterial, upload } from "../controllers/materialController/createMaterial";
+import { getMaterialAssignments } from "../controllers/materialController/getMaterialAssignments";
+import { downloadMaterial } from "../controllers/materialController/downloadMaterial";
+import { authenticateToken, AuthenticatedRequest } from "../middleware/authenticateToken";
 
 const router = Router();
 
+// Middleware para verificar que el usuario es profesor o administrador
+const checkTeacherOrAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (req.user?.role !== 'profesor' && req.user?.role !== 'admin') {
+    return res.status(403).json({ 
+      success: false,
+      message: "Acceso denegado. Solo profesores y administradores pueden acceder a esta ruta." 
+    });
+  }
+  next();
+};
+
+// Middleware compuesto para autenticación y verificación de rol profesor/admin
+const authTeacherAdminMiddleware = [
+  (req: any, res: Response, next: NextFunction) => { authenticateToken(req, res, next); },
+  (req: AuthenticatedRequest, res: Response, next: NextFunction) => { checkTeacherOrAdmin(req, res, next); }
+];
+
+// Rutas existentes
 router.get("/summary",      getMaterialStats);
 router.get("/student/:id",  getStudentMaterials);
-router.post("/",            authenticateToken, upload.single("file"), createMaterial);
+
+// Nuevas rutas para profesores y administradores
+router.get("/all", authTeacherAdminMiddleware, getAllMaterials);
+router.post("/upload-url", authTeacherAdminMiddleware, uploadMaterial);
+router.put("/:id", authTeacherAdminMiddleware, updateMaterial);
+router.delete("/:id", authTeacherAdminMiddleware, deleteMaterial);
+router.post("/",          authTeacherAdminMiddleware, upload.single("file"), createMaterial);
 router.get("/:id/assignments", getMaterialAssignments);
-router.get("/download/:id", downloadMaterial);
-
-
 router.get("/download/:id", downloadMaterial);
 
 export default router;
